@@ -2,28 +2,44 @@ import grass_env as evt
 import grass.script as gs
 from grass.script import setup as gsetup
 import os
+from sqlalchemy import create_engine as ce
+import pandas as pd
+
+dbname = 'hfrd'
+engine = ce('postgresql:///{0}'.format(dbname), echo=True)
 
 
 def grassname(p):
     return os.path.basename(p).split('.')[0]
 
 
-# def slopecat(bk=[15, 35, 65, 90]):
-#     cats = {1: [bk[0], bk[1]],
-#             2: [bk[1], bk[2]],
-#             3: [bk[2], bk[3]],
-#             4: [bk[3], bk[4]]}
-#     sql = 'insert into slopecat values ([vals])'
-    
+def slopecat(bk=[0, 15, 35, 65, 90]):
+    cats = {1: [bk[0], bk[1]],
+            2: [bk[1], bk[2]],
+            3: [bk[2], bk[3]],
+            4: [bk[3], bk[4]]}
+    grassTxt = '{0} thru {1}\t= {2}\t{0}-{1}%\n'
+    f = open('slp_reclass', 'w+')
+    for k in cats.keys():
+        f.write(grassTxt.format(cats[k][0], cats[k][1], k))
+    f.write('*         \t= NULL\t')
+    f.close()
+    df = pd.DataFrame.from_dict(cats, orient='index')
+    df.to_sql('slopecat', engine, if_exists='replace')
+    return cats
+
 
 def slopeVector(mapset, bnd, erast):
     gsetup.init(evt.gisbase, evt.gisdb, 'socal_hfrd', mapset)
+    slopecat()
     gs.parse_command('v.in.ogr',
                      flags='e',
                      input=bnd,
                      output=grassname(bnd),
                      overwrite=True,
                      verbose=True)
+    gs.parse_command('g.region',
+                     vect=grassname(bnd))
     gs.parse_command('r.in.gdal',
                      input=erast,
                      output=grassname(erast),

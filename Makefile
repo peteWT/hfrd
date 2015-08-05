@@ -48,6 +48,10 @@ db/shaver_road:
 .PHONY: shaver
 shaver: products/sce_clean.geojson db/shaver_road
 
+db/slopecat:
+	python -c 'import slope as s; s.slopecat()'
+	touch $@
+
 products/bb_slope.geojson:db/bb_projarea
 	wget ${demUrl}${bbDem}.zip
 	unzip ${bbDem}.zip -d src_data
@@ -64,18 +68,39 @@ products/shaver_slope.geojson:
 
 
 products/santarosa_slope.geojson:
-	wget ${demUrl}${srDem}.zip
-	unzip ${srDem}.zip -d src_data
-	rm ${srDem}.zip
-	python -c "import slope as sl; sl.slopeVector('santarosa', '$@', 'src_data/img${srDem}_13.img')"
-	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "santarosa_projareaslope"
+#	wget ${demUrl}${srDem}.zip
+#	unzip ${srDem}.zip -d src_data
+#	rm ${srDem}.zip
+	python -c "import slope as sl; sl.slopeVector('santarosa', 'products/sr_projarea.geojson', 'src_data/img${srDem}_13.img')"
+	rm -f $@
+	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "sr_projareaslope"
 	touch $@
 
 .PHONY: elev
-elev: src_data/bb_elev src_data/sce_elev src_data/sr_elev
+elev: db/slopecat products/santarosa_slope.geojson products/shaver_slope.geojson products/bb_slope.geojson
 
 products/bb_projarea.geojson: db db/usgs_srid
 	shp2pgsql -s 26911:${srid} -d -I -S "Mountain Top/Equipment Units.shp" bb_eunits | ${PG}
 	${PG} -c "drop table if exists bb_projarea; create table bb_projarea as select 1 gid, 'project boundary'::text descr, st_concavehull(st_collect(geom), .99) geom, st_transform(st_buffer(st_concavehull(st_collect(geom), .99),100),${usgssrid} ) ${usgsGeo} from bb_eunits;"
+	rm -f $@
 	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" "bb_projarea"
 
+products/shaver_projarea.geojson: shaver
+	rm -f $@
+	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select st_buffer(st_concavehull(st_collect(wkb_geometry), .99),100) geom from shaverlake_units"
+
+
+
+.PHONY: proj_bnd
+prj_bnd: products/bb_projarea.geojson products/shaver_projarea.geojson products/bb_projarea.geojson
+
+
+## Santa Rosa
+products/sr_units.geojson:
+	rm -f $@
+	shp2pgsql -s 26911:${srid} -d -I -S "SantaRosa/Demo_Project_area.shp" sr_units | ${PG}
+	ogr2ogr -overwrite  -f GeoJSON $@ PG:"dbname=${dbname}" "sr_units"
+
+products/sr_projarea.geojson: products/sr_units.geojson
+	rm -f $@
+	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select st_buffer(st_concavehull(st_collect(geom), .99),100) geom from sr_units"

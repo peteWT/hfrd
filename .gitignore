@@ -1,0 +1,8 @@
+.DS_Store
+.DS_Store?
+*~
+*.pyc
+
+# directories
+src_data/
+db/
