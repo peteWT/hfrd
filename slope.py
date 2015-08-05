@@ -25,6 +25,7 @@ def slopecat(bk=[0, 15, 35, 65, 90]):
     f.write('*         \t= NULL\t')
     f.close()
     df = pd.DataFrame.from_dict(cats, orient='index')
+    df.columns = ['cl', 'ch']
     df.to_sql('slopecat', engine, if_exists='replace')
     return cats
 
