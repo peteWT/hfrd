@@ -53,24 +53,26 @@ db/slopecat:
 	touch $@
 
 products/bb_slope.geojson:db/bb_projarea
-	wget ${demUrl}${bbDem}.zip
-	unzip ${bbDem}.zip -d src_data
-	rm ${bbDem}.zip
+#	wget ${demUrl}${bbDem}.zip
+#	unzip ${bbDem}.zip -d src_data
+#	rm ${bbDem}.zip
 	python -c "import slope as sl; sl.slopeVector('bigbear', 'products/bb_projarea.geojson', 'src_data/img${bbDem}_13.img')"
+	rm -f $@
 	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql  "select p.geom,value,cl,ch, cl||'-'||ch||'%' as slope_range from bb_projareaslope p join slopecat on(value=index)"
 
 products/shaver_slope.geojson:
-	wget ${demUrl}${sceDem}.zip
-	unzip ${sceDem}.zip -d src_data
-	rm ${sceDem}.zip
+#	wget ${demUrl}${sceDem}.zip
+#	unzip ${sceDem}.zip -d src_data
+#	rm ${sceDem}.zip
 	python -c "import slope as sl; sl.slopeVector('shaver', 'products/shaver_projarea.geojson', 'src_data/img${sceDem}_13.img')"
+	rm -f $@
 	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select p.geom,value,cl,ch, cl||'-'||ch||'%' as slope_range from shaver_projareaslope p join slopecat on(value=index)"
 
 
 products/santarosa_slope.geojson:
-	wget ${demUrl}${srDem}.zip
-	unzip ${srDem}.zip -d src_data
-	rm ${srDem}.zip
+#	wget ${demUrl}${srDem}.zip
+#	unzip ${srDem}.zip -d src_data
+#	rm ${srDem}.zip
 	python -c "import slope as sl; sl.slopeVector('santarosa', 'products/sr_projarea.geojson', 'src_data/img${srDem}_13.img')"
 	rm -f $@
 	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select p.geom,value,cl,ch, cl||'-'||ch||'%' as slope_range from sr_projareaslope p join slopecat on(value=index)"
