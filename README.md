@@ -34,18 +34,16 @@ for the shaver equipment uints this results, based on this query:
 
 plots per unit are:
 
- hfrd_uid | plots_uid 
-----------+-----------
- SL_11    |         3
- SL_10    |         4
- SL_5     |         9
- SL_4     |         5
- SL_1     |         3
- SL_3     |         8
- SL_9     |         5
- SL_2     |         5
- SL_8     |         4
- SL_6     |         2
- SL_7     |         7
-
-
+| `hfrd_uid'`| 'plots_uid` |
+----------+-----------|
+| `SL_11`    |         3|
+| `SL_10`    |         4|
+| `SL_5`    |         9|
+| `SL_4`     |         5|
+| `SL_1`     |         3|
+| `SL_3`     |         8|
+| `SL_9`     |         5|
+| `SL_2`     |         5|
+| `SL_8`     |         4|
+| `SL_6`    |         2|
+| `SL_7`     |         7|
