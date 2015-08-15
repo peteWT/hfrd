@@ -18,6 +18,7 @@ db:
 	createdb ${dbname}
 	psql -d ${dbname} -c 'create extension postgis;'
 	psql -d ${dbname} -c 'create extension postgis_topology;'
+	psql -d ${dbname} -c 'create language plpython2u;'
 	mkdir $@
 
 products:
@@ -96,6 +97,7 @@ products/bb_projarea.geojson: db db/usgs_srid
 	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" "bb_projarea"
 
 products/shaver_projarea.geojson: shaver
+	${PG} -c "drop table if exists sce_projarea; create table sce_projarea as select st_buffer(st_concavehull(st_collect(wkb_geometry), .99),100) geom from shaverlake_units;"
 	rm -f $@
 	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select st_buffer(st_concavehull(st_collect(wkb_geometry), .99),100) geom from shaverlake_units"
 
@@ -128,7 +130,7 @@ db/plants:
 src_data/lemma_codes.csv:
 	mdb-export ~/host/Downloads/db_sppsz_2014_04_21.mdb  Metadata_codes > $@
 
-db/gnn_live: src_data/lemma_live.csv src_data/lemma_fields.csv src_data/lemma_codes.csv
+db/gnn_live: src_data/lemma_live.csv src_data/lemma_fields.csv src_data/lemma_codes.csv db/lemmasrid
 	python -c "import pandas as pd, util;ce=util.eng();df=pd.read_csv('src_data/lemma_live.csv');df.columns=[i.lower() for i in df.columns];df.to_sql('gnn_live', ce, if_exists='replace')"
 	python -c "import pandas as pd, util;ce=util.eng();df=pd.read_csv('src_data/lemma_codes.csv');df.columns=[i.lower() for i in df.columns];df.to_sql('gnn_codes', ce, if_exists='replace')"
 	python -c "import pandas as pd, util;ce=util.eng();df=pd.read_csv('src_data/lemma_fields.csv');df.columns=[i.lower() for i in df.columns];df.to_sql('gnn_fields', ce, if_exists='replace')"
