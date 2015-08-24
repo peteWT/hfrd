@@ -90,11 +90,7 @@ products/santarosa_slope.geojson:
 .PHONY: elev
 elev: db/slopecat products/santarosa_slope.geojson products/shaver_slope.geojson products/bb_slope.geojson
 
-products/bb_projarea.geojson: db db/usgs_srid
-	shp2pgsql -s 26911:${srid} -d -I -S "Mountain Top/Equipment Units.shp" bb_eunits | ${PG}
-	${PG} -c "drop table if exists bb_projarea; create table bb_projarea as select 1 gid, 'project boundary'::text descr, st_concavehull(st_collect(geom), .99) geom, st_transform(st_buffer(st_concavehull(st_collect(geom), .99),100),${usgssrid} ) ${usgsGeo} from bb_eunits;"
-	rm -f $@
-	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" "bb_projarea"
+
 
 products/shaver_projarea.geojson: shaver
 	${PG} -c "drop table if exists sce_projarea; create table sce_projarea as select st_buffer(st_concavehull(st_collect(wkb_geometry), .99),100) geom from shaverlake_units;"
@@ -108,14 +104,23 @@ prj_bnd: products/bb_projarea.geojson products/shaver_projarea.geojson products/
 
 
 ## Santa Rosa
-products/sr_units.geojson:
+products/sr_nrcs_units.geojson:
 	rm -f $@
 	shp2pgsql -s 26911:${srid} -d -I -S "SantaRosa/Demo_Project_area.shp" sr_units | ${PG}
-	ogr2ogr -overwrite  -f GeoJSON $@ PG:"dbname=${dbname}" "sr_units"
+	ogr2ogr -overwrite  -f GeoJSON $@ PG:"dbname=${dbname}" "sr_nrcs_units"
 
 products/sr_projarea.geojson: products/sr_units.geojson
 	rm -f $@
 	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select st_buffer(st_concavehull(st_collect(geom), .99),100) geom from sr_units"
+
+products/sr_clean.geojson: products/sr_nrcs_units.geojson
+	${cdb2local} "CartoDB:biomass tables=sr_nrcs_units"
+	${cdb2local} "CartoDB:biomass tables=sr_mech_unit_bnd"
+	${cdb2local} "CartoDB:biomass tables=sr_tss_units"
+	${PG} -f santa_rosa.sql
+	ogr2ogr -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "sr_clean"
+
+
 
 ##LEMMA Veg Data
 src_data/lemma_live.csv:
@@ -147,4 +152,11 @@ products/sce_vegst.geojson: products/shaver_projarea.geojson
 	${PG} -f vegstrata.sql
 	ogr2ogr -overwrite  -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" sce_vegstrata
 
+
+#Big Bear
+products/bb_projarea.geojson: db db/usgs_srid
+	shp2pgsql -s 26911:${srid} -d -I -S "Mountain Top/Equipment Units.shp" bb_eunits | ${PG}
+	${PG} -c "drop table if exists bb_projarea; create table bb_projarea as select 1 gid, 'project boundary'::text descr, st_concavehull(st_collect(geom), .99) geom, st_transform(st_buffer(st_concavehull(st_collect(geom), .99),100),${usgssrid} ) ${usgsGeo} from bb_eunits;"
+	rm -f $@
+	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" "bb_projarea"
 
