@@ -162,4 +162,4 @@ products/bb_projarea.geojson: db db/usgs_srid
 
 products/bb_eunits.geojson:
 	rm -f $@
-	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" "bb_eunits"
+	ogr2ogr -overwrite -preserve_fid -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" "bb_eunits"
