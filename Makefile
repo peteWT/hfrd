@@ -124,7 +124,7 @@ products/bb_projarea.geojson: db db/usgs_srid
 
 products/bb_eunits.geojson:
 	rm -f $@
-	ogr2ogr -overwrite -preserve_fid -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select geom, gid from bb_eunits"
+	ogr2ogr -overwrite -preserve_fid -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select geom, gid, equipment from bb_eunits"
 
 ##LEMMA Veg Data
 src_data/lemma_live.csv:
