@@ -38,9 +38,13 @@ db/lemmasrid:
 	${PG} -c 'delete from spatial_ref_sys where srid=5070;'
 	curl http://epsg.io/5070.sql | ${PG}
 	touch $@
+db/slopecat:
+	python -c 'import slope as s; s.slopecat()'
+	touch $@
+
 
 .PHONY: struct
-struct: db products src_data db/usgs_srid db/lemmasrid
+struct: db products src_data db/usgs_srid db/lemmasrid db/slopecat
 
 products/sce_clean.geojson: db/shaver_road
 	${cdb2local} "CartoDB:biomass tables=shaverlake_units"
@@ -49,25 +53,11 @@ products/sce_clean.geojson: db/shaver_road
 	${PG} -f shaver_sql.sql
 	ogr2ogr -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "sce_clean"
 
+### Shaver Lake 
 db/shaver_road:
 	${cdb2local} "CartoDB:biomass tables=sce_road"
 	${PG} -c 'drop table if exists sce_rdbuf; create table sce_rdbuf as select ogc_fid, st_buffer(wkb_geometry,${road_buffer}) the_geom, ${road_buffer} buf_dist from sce_road;'
 	touch $@
-
-.PHONY: shaver
-shaver: products/sce_clean.geojson db/shaver_road
-
-db/slopecat:
-	python -c 'import slope as s; s.slopecat()'
-	touch $@
-
-products/bb_slope.geojson:db/bb_projarea
-	wget ${demUrl}${bbDem}.zip
-	unzip ${bbDem}.zip -d src_data
-	rm ${bbDem}.zip
-	python -c "import slope as sl; sl.slopeVector('bigbear', 'products/bb_projarea.geojson', 'src_data/img${bbDem}_13.img')"
-	rm -f $@
-	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql  "select p.geom,value,cl,ch, cl||'-'||ch||'%' as slope_range from bb_projareaslope p join slopecat on(value=index)"
 
 products/shaver_slope.geojson:
 	wget ${demUrl}${sceDem}.zip
@@ -77,30 +67,23 @@ products/shaver_slope.geojson:
 	rm -f $@
 	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select p.geom,value,cl,ch, cl||'-'||ch||'%' as slope_range from shaver_projareaslope p join slopecat on(value=index)"
 
-
-products/santarosa_slope.geojson:
-	wget ${demUrl}${srDem}.zip
-	unzip ${srDem}.zip -d src_data
-	rm ${srDem}.zip
-	python -c "import slope as sl; sl.slopeVector('santarosa', 'products/sr_projarea.geojson', 'src_data/img${srDem}_13.img')"
-	rm -f $@
-	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select p.geom,value,cl,ch, cl||'-'||ch||'%' as slope_range from sr_projareaslope p join slopecat on(value=index)"
-	touch $@
-
-.PHONY: elev
-elev: db/slopecat products/santarosa_slope.geojson products/shaver_slope.geojson products/bb_slope.geojson
-
-
-
 products/shaver_projarea.geojson: shaver
 	${PG} -c "drop table if exists sce_projarea; create table sce_projarea as select st_buffer(st_concavehull(st_collect(wkb_geometry), .99),100) geom from shaverlake_units;"
 	rm -f $@
 	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select st_buffer(st_concavehull(st_collect(wkb_geometry), .99),100) geom from shaverlake_units"
 
 
+.PHONY: shaver
+shaver: products/sce_clean.geojson db/shaver_road products/shaver_slope.geojson
 
-.PHONY: proj_bnd
-prj_bnd: products/bb_projarea.geojson products/shaver_projarea.geojson products/bb_projarea.geojson
+
+products/bb_slope.geojson:db/bb_projarea
+	wget ${demUrl}${bbDem}.zip
+	unzip ${bbDem}.zip -d src_data
+	rm ${bbDem}.zip
+	python -c "import slope as sl; sl.slopeVector('bigbear', 'products/bb_projarea.geojson', 'src_data/img${bbDem}_13.img')"
+	rm -f $@
+	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql  "select p.geom,value,cl,ch, cl||'-'||ch||'%' as slope_range from bb_projareaslope p join slopecat on(value=index)"
 
 
 ## Santa Rosa
@@ -120,7 +103,28 @@ products/sr_clean.geojson: products/sr_nrcs_units.geojson
 	${PG} -f santa_rosa.sql
 	ogr2ogr -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "sr_clean"
 
+products/santarosa_slope.geojson:
+	wget ${demUrl}${srDem}.zip
+	unzip ${srDem}.zip -d src_data
+	rm ${srDem}.zip
+	python -c "import slope as sl; sl.slopeVector('santarosa', 'products/sr_projarea.geojson', 'src_data/img${srDem}_13.img')"
+	rm -f $@
+	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select p.geom,value,cl,ch, cl||'-'||ch||'%' as slope_range from sr_projareaslope p join slopecat on(value=index)"
+	touch $@
 
+.PHONY: santa_rosa
+shaver: products/sr_clean.geojson products/sr_projarea.geojson products/santarosa_slope.geojson products/sr_nrcs_units.geojson
+
+##Big Bear
+products/bb_projarea.geojson: db db/usgs_srid
+	shp2pgsql -s 26911:${srid} -d -I -S "Mountain Top/Equipment Units.shp" bb_eunits | ${PG}
+	${PG} -c "drop table if exists bb_projarea; create table bb_projarea as select 1 gid, 'project boundary'::text descr, st_concavehull(st_collect(geom), .99) geom, st_transform(st_buffer(st_concavehull(st_collect(geom), .99),100),${usgssrid} ) ${usgsGeo} from bb_eunits;"
+	rm -f $@
+	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" "bb_projarea"
+
+products/bb_eunits.geojson:
+	rm -f $@
+	ogr2ogr -overwrite -preserve_fid -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select geom, gid from bb_eunits"
 
 ##LEMMA Veg Data
 src_data/lemma_live.csv:
@@ -153,13 +157,4 @@ products/sce_vegst.geojson: products/shaver_projarea.geojson
 	ogr2ogr -overwrite  -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" sce_vegstrata
 
 
-#Big Bear
-products/bb_projarea.geojson: db db/usgs_srid
-	shp2pgsql -s 26911:${srid} -d -I -S "Mountain Top/Equipment Units.shp" bb_eunits | ${PG}
-	${PG} -c "drop table if exists bb_projarea; create table bb_projarea as select 1 gid, 'project boundary'::text descr, st_concavehull(st_collect(geom), .99) geom, st_transform(st_buffer(st_concavehull(st_collect(geom), .99),100),${usgssrid} ) ${usgsGeo} from bb_eunits;"
-	rm -f $@
-	ogr2ogr -overwrite -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" "bb_projarea"
 
-products/bb_eunits.geojson:
-	rm -f $@
-	ogr2ogr -overwrite -preserve_fid -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" "bb_eunits"
