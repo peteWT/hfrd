@@ -173,7 +173,17 @@ db/gnn_live: src_data/lemma_live.csv src_data/lemma_fields.csv src_data/lemma_co
 	touch $@
 
 
-### Veg types
+### In-situ data
+db/allometry:
+	python allo.py
+	touch $@
+
+db/insitu:
+	python insitu.py
+	touch $@
+
+### Plot GPS
+
 
 
 
