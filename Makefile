@@ -81,6 +81,7 @@ products/sce_vegst.geojson: products/shaver_projarea.geojson
 	${PG} -f vegstrata.sql
 	ogr2ogr -overwrite  -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" sce_vegstrata
 
+
 .PHONY: shaver
 shaver: products/sce_clean.geojson db/shaver_road products/shaver_slope.geojson
 
