@@ -81,6 +81,10 @@ products/sce_vegst.geojson: products/shaver_projarea.geojson
 	${PG} -f vegstrata.sql
 	ogr2ogr -overwrite  -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" sce_vegstrata
 
+products/sce_plots.shp:
+	shp2pgsql -s 4326:3741 -d -I SCE/SCE_GPS_Measurements/plots_812/hfrd/shaver_plots.shp sce_plots | psql -d hfrd
+	psql -d ${dbname} -v t='sce_plots' -f shaver_plots.sql
+	pgsql2shp -f $@ hfrd 'select p.gid plotid, p.geom, hfrd_uid from sce_plots p join sce_clean s on st_contains(s.geom, p.geom)'
 
 .PHONY: shaver
 shaver: products/sce_clean.geojson db/shaver_road products/shaver_slope.geojson
