@@ -18,11 +18,10 @@ def slopecat(bk=[0, 15, 35, 65, 90]):
             2: [bk[1], bk[2]],
             3: [bk[2], bk[3]],
             4: [bk[3], bk[4]]}
-    grassTxt = '0.{0} thru 0.{1}\t= {2}\t{0}-{1}%\n'
+    grassTxt = '{0}:{1}:{2}:{2}\n'
     f = open('slp_reclass', 'w+')
     for k in cats.keys():
         f.write(grassTxt.format(cats[k][0], cats[k][1], k))
-    f.write('*         \t= NULL\t')
     f.close()
     df = pd.DataFrame.from_dict(cats, orient='index')
     df.columns = ['cl', 'ch']
@@ -52,7 +51,9 @@ def slopeVector(mapset, bnd, erast):
                      format='percent',
                      overwrite=True,
                      verbose=True)
-    gs.parse_command('r.reclass',
+    gs.parse_command('g.region',
+                     rast=grassname(erast)+'slp')
+    gs.parse_command('r.recode',
                      input=grassname(erast)+'slp',
                      output=grassname(erast)+'slprc',
                      rules='slp_reclass',
