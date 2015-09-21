@@ -89,7 +89,7 @@ products/sce_plots:
 	pgsql2shp -f $@.shp hfrd 'select * from sce_plots p'
 	zip $@.zip $@.*
 	rm $@.geojson
-	ogr2ogr -overwrite  -f GeoJSON $@.geojson PG:"dbname=${dbname}" "sce_plots"
+	ogr2ogr -overwrite  -t_srs EPSG:4326 -f GeoJSON $@.geojson PG:"dbname=${dbname}" "sce_plots"
 
 .PHONY: shaver
 shaver: products/sce_clean.geojson db/shaver_road products/shaver_slope.geojson
