@@ -88,7 +88,6 @@ products/sce_plots:
 	psql -d ${dbname} -v t='sce_plots' -f sce_plots.sql
 	pgsql2shp -f $@.shp hfrd 'select * from sce_plots p'
 	zip $@.zip $@.*
-	rm "$@.!sce_plots.zip"
 	rm $@.geojson
 	ogr2ogr -overwrite  -f GeoJSON $@.geojson PG:"dbname=${dbname}" "sce_plots"
 
