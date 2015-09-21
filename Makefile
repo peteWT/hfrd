@@ -14,6 +14,7 @@ usgsGeo := geom_usgs
 usgsproj4 := +proj=longlat +ellps=GRS80 +no_defs
 lemmaSrid := 5070
 buffsize := 100
+nixHost := ~/host/hfrdgis/
 
 db:
 	createdb ${dbname}
@@ -81,10 +82,15 @@ products/sce_vegst.geojson: products/shaver_projarea.geojson
 	${PG} -f vegstrata.sql
 	ogr2ogr -overwrite  -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" sce_vegstrata
 
-products/sce_plots.shp:
-	shp2pgsql -s 4326:3741 -d -I SCE/SCE_GPS_Measurements/plots_812/hfrd/shaver_plots.shp sce_plots | psql -d hfrd
-	psql -d ${dbname} -v t='sce_plots' -f shaver_plots.sql
-	pgsql2shp -f $@ hfrd 'select p.gid plotid, p.geom, hfrd_uid from sce_plots p join sce_clean s on st_contains(s.geom, p.geom)'
+products/sce_plots:
+	shp2pgsql -s 4326:3741 -d -I ${nixHost}SCE/SCE_GPS_Measurements/plots_812/hfrd/shaver_plots.shp sce_812_plots | psql -d hfrd
+	shp2pgsql -s 3741 -d -I ${nixHost}SCE/SCELib/plots/sce_plots.shp sce_plots | psql -d hfrd
+	psql -d ${dbname} -v t='sce_plots' -f sce_plots.sql
+	pgsql2shp -f $@.shp hfrd 'select * from sce_plots p'
+	zip $@.zip $@.*
+	rm "$@.!sce_plots.zip"
+	rm $@.geojson
+	ogr2ogr -overwrite  -f GeoJSON $@.geojson PG:"dbname=${dbname}" "sce_plots"
 
 .PHONY: shaver
 shaver: products/sce_clean.geojson db/shaver_road products/shaver_slope.geojson
