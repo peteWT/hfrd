@@ -149,16 +149,19 @@ products/bb_slope.geojson: products/bb_projarea.geojson
 	rm -f $@
 	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql  "select p.geom,value,cl,ch, cl||'-'||ch||'%' as slope_range from bb_projareaslope p join slopecat on(value=index)"
 
-db/bb_gnnveg: products/bb_projarea.geojson
-	gdalwarp -q -overwrite -cutline "PG:dbname=${dbname}" -csql "select st_transform(st_buffer(st_concavehull(st_collect(geom), .99),${buffsize}),${lemmaSrid}) geom from sce_clean" -crop_to_cutline -t_srs EPSG:${srid} -of GTiff /home/user/host/Downloads/gnn_sppsz_2014_08_28/mr200_2012/w001001.adf src_data/gnn_bb.tif
+db/bb_gnnveg:
+	gdalwarp -q -overwrite -cutline "PG:dbname=${dbname}" -csql "select st_transform(st_buffer(st_concavehull(st_collect(geom), .99),${buffsize}),${lemmaSrid}) geom from bb_projarea" -crop_to_cutline -t_srs EPSG:${srid} -of GTiff /home/user/host/Downloads/gnn_sppsz_2014_08_28/mr200_2012/w001001.adf src_data/gnn_bb.tif
 	gdal_polygonize.py src_data/gnn_bb.tif -f PostgreSQL "PG:dbname=${dbname}" bb_veg 
 	${PG} -c 'delete from bb_veg where dn=0;'
 	${PG} -c 'delete from bb_veg where dn is null;'
 	touch $@
 
+
+## Vegstrata.sql is conficured for shaver. do not use...
 products/bb_vegst.geojson:db/bb_gnnveg
 	${PG} -f vegstrata.sql
 	ogr2ogr -overwrite  -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" sce_vegstrata
+
 
 .PHONY: bigbear
 bigbear: products/bb_slope.geojson products/bb_eunits.geojson products/bb_projarea.geojson
