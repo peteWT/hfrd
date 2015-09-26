@@ -137,6 +137,9 @@ db/bb_strata:
 	shp2pgsql -s 26911:${srid} -d -I  "Mountain Top/Demo_3.shp" bb_tlevel | ${PG}
 	shp2pgsql -s 26911:${srid} -d -I  "Mountain Top/Demo_RCA.shp" bb_rca | ${PG}
 
+products/bb_rca.geojson:
+	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select st_force2d((st_dump(geom)).geom) geom from bb_rca"
+
 products/bb_eunits.geojson:
 	rm -f $@
 	ogr2ogr -overwrite -preserve_fid -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select geom, gid, equipment from bb_eunits"
@@ -156,10 +159,15 @@ db/bb_gnnveg:
 	${PG} -c 'delete from bb_veg where dn is null;'
 	touch $@
 
+products/bb_clean.geojson:
+	${cdb2local} "CartoDB:biomass tables=bb_equip_assign"
+	${cdb2local} "CartoDB:biomass tables=bb_boundaries"
+	${PG} -f bb_clean.sql
+	ogr2ogr -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "bb_clean"
 
 ## Vegstrata.sql is conficured for shaver. do not use...
 products/bb_vegst.geojson:db/bb_gnnveg
-	${PG} -f vegstrata.sql
+	${PG} -f bb_vegstrata.sql
 	ogr2ogr -overwrite  -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" sce_vegstrata
 
 
