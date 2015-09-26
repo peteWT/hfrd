@@ -1,13 +1,8 @@
 drop table if exists bb_units;
 
-create table bb_units as with foo as 
-       	     	  (select (st_dump(geom)).geom wkb_geometry
-		  from bb_rca)
-	select wkb_geometry from bb_boundaries
-	union  
-	select st_exteriorring(wkb_geometry)
-	from foo 
-	where st_area(wkb_geometry) > 20;
+create table bb_units as 
+	select wkb_geometry from bb_boundaries;
+
 
 
 
