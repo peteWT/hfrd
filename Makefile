@@ -176,10 +176,11 @@ products/bb_strata.geojson:
 	ogr2ogr -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "bb_s_strata"
 
 products/bb_plots.geojson:
-	${PG} -c 'drop table if exists bb_plots; create table bb_plots as select randompointsinpolygon(geom,4), hfrd_uid from bb_s_strata; alter table bb_plots add column pid serial primary key'
+	${PG} -c 'drop table if exists bb_plots; create table bb_plots as with foo as (select hfrd_uid, st_buffer(geom, -23) geom from bb_s_strata) select randompointsinpolygon(geom,4), hfrd_uid from foo where st_area(geom) > 625; alter table bb_plots add column pid serial primary key'
 	pgsql2shp -r -f products/bb_plots.shp ${dbname} bb_plots
 	ogr2ogr -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "bb_plots"
-
+.PHONY: plots
+plots : products/bb_clean.geojson products/bb_strata.geojson products/bb_plots.geojson
 ## Vegstrata.sql is conficured for shaver. do not use...
 products/bb_vegst.geojson:db/bb_gnnveg
 	${PG} -f bb_vegstrata.sql
