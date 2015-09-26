@@ -140,6 +140,10 @@ db/bb_strata:
 products/bb_rca.geojson:
 	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select st_force2d((st_dump(geom)).geom) geom from bb_rca"
 
+products/bb_tlevel.geojson:
+	ogr2ogr -overwrite -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select st_force2d((st_dump(geom)).geom) geom from bb_tlevel"
+
+
 products/bb_eunits.geojson:
 	rm -f $@
 	ogr2ogr -overwrite -preserve_fid -t_srs "${usgsproj4}" -f GeoJSON $@ PG:"dbname=${dbname}" -sql "select geom, gid, equipment from bb_eunits"
