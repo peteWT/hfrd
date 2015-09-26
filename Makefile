@@ -184,7 +184,7 @@ products/bb_plots.geojson:
 products/bb_vegst.geojson:db/bb_gnnveg
 	${PG} -f bb_vegstrata.sql
 	ogr2ogr -overwrite  -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" sce_vegstrata
-
+https://biomass.cartodb.com/api/v2/sql?filename=bb_clean&q=select+*+from+sce_clean&format=shp
 
 .PHONY: bigbear
 bigbear: products/bb_slope.geojson products/bb_eunits.geojson products/bb_projarea.geojson
