@@ -169,6 +169,16 @@ products/bb_clean.geojson:
 	${PG} -f bb_clean.sql
 	ogr2ogr -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "bb_clean"
 
+products/bb_strata.geojson:
+	${cdb2local} "CartoDB:biomass tables=bb_tlev_bnd"
+	${cdb2local} "CartoDB:biomass tables=bb_tlevel_poly"
+	${PG} -f bb_strata.sql
+	ogr2ogr -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "bb_s_strata"
+
+products/bb_plots.geojson:
+	${PG} -c 'drop table if exists bb_plots; create table bb_plots as select randompointsinpolygon(geom,4), hfrd_uid from bb_s_strata'
+	ogr2ogr -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "bb_plots"
+
 ## Vegstrata.sql is conficured for shaver. do not use...
 products/bb_vegst.geojson:db/bb_gnnveg
 	${PG} -f bb_vegstrata.sql

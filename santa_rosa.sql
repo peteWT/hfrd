@@ -42,3 +42,4 @@ create table sr_clean  as with foo as
 
 
 
+
