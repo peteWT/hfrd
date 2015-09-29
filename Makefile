@@ -176,7 +176,7 @@ products/bb_strata.geojson:
 	ogr2ogr -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "bb_s_strata"
 
 products/bb_plots.geojson:
-	${PG} -c "drop table if exists bb_plots; create table bb_plots as with foo as (select hfrd_uid, st_buffer(geom, -12) geom from bb_s_strata) select randompointsinpolygon(geom,4), hfrd_uid, generate_series(1,4) spid from foo where st_area(geom) > 144; alter table bb_plots add column pid serial primary key; update bb_plots set hfrd_uid = hfrd_uid||'_'||pid"
+	${PG} -c "drop table if exists bb_plots; create table bb_plots as with foo as (select hfrd_uid, st_buffer(geom, -12) geom from bb_s_strata) select randompointsinpolygon(geom,4), hfrd_uid, generate_series(1,4) spid from foo where st_area(geom) > 144; alter table bb_plots add column pid serial primary key; update bb_plots set hfrd_uid = hfrd_uid||'_'||pid||'_'||spid"
 	pgsql2shp -r -f products/bb_plots.shp ${dbname} bb_plots
 	ogr2ogr -t_srs EPSG:4326 -f GeoJSON $@ PG:"dbname=${dbname}" "bb_plots"
 .PHONY: plots
