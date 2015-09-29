@@ -29,7 +29,10 @@ create table bb_s_strata  as with foo as
 	     from foo,
 	     bb_clean o,
 	     bb_tlevel_poly t
-	     where st_within(st_centroid(foo.geom),o.geom)
+	     where st_contains(st_buffer(o.geom, 5), foo.geom)
 	     and st_within(st_centroid(foo.geom),t.wkb_geometry);
+--	     and st_contains(st_buffer(t.wkb_geometry, 5), foo.geom);
+--	     where st_within(st_centroid(foo.geom),o.geom)
+--	     and st_within(st_centroid(foo.geom),t.wkb_geometry);
 
 
