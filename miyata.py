@@ -1,4 +1,6 @@
 import util as ut
+from operator import sub
+
 costData =ut.gData(
     '1TsHo2wyvzKYugiDudPHFJjtFS--5ZBcWNb2gGopteX4',
     1475511425)
@@ -14,11 +16,21 @@ class DpAsset:
     def __init__(self):
         '''
         default variables for depreciation calculations
+        n = Economic life of the equipment -- default is 5 years
+        p = Initial Investment -- default is $85,000
+        s = Salvage value --- default is 20% of p
         '''
         self.n = 5.0
         self.p = 85000.00
-        self.s = 17000.00
+        self.s = 0.2
         self.dbMultiplier = 2.0
+
+    def sVal(self, arbitrary=None):
+        if arbitrary is not None:
+            return arbitrary
+        else:
+            return self.s*self.p
+
         
     def depRate(self):
         '''
@@ -27,8 +39,8 @@ class DpAsset:
         n: economic life in years
         '''
         return 1.0/self.n
-    
-    def depStraitLine(self):
+
+    def depStraitLine(self, sval=None):
         '''
         Strait line method
         ------------------
@@ -36,19 +48,46 @@ class DpAsset:
         s: salvage value
         n: economic life in years
         '''
-        return (self.p-self.s)/self.n
+        if sval is None:
+            salvage = self.sVal()
+        else:
+            salvage = self.sVal(arbitrary=sval)
+        return (self.p-salvage)/self.n
 
     def depDecBalance(self):
+        '''Declining balance method'''
         sched = {}
         undepValue = self.p
         annDep = 0
         for year in range(int(self.n)):
-            sched['year'+str(year)]=[annDep, undepValue]
+            sched['year' + str(year)] = (annDep, undepValue)
             annDep = undepValue * (self.depRate() * self.dbMultiplier)
             undepValue = undepValue - annDep
-      
         return sched
 
-    def depSOYD(self):
-        depRateYear = [float(i)/sum(range(int(self.n))) for i in range(int(self.n))]
-        return depRateYear
+    def depSOYD2(self, sval = None):
+        '''Declining balance method'''
+        if sval is None:
+            salvage = self.sVal()
+        else:
+            salvage = self.sVal(arbitrary=sval)
+        sched = {}
+        undepValue = self.p
+        tDep = self.p - salvage
+        annDep = 0
+        sched['year0'] = (annDep,undepValue)
+        years = range(1,int(self.n)+1)
+        revyears= sorted(years, reverse=True)
+        for y in range(len(years)):
+            annDep = tDep * revyears[y]/sum(years)
+            undepValue = undepValue - annDep
+            sched['year' + str(years[y])] = (annDep, undepValue)
+        return sched
+
+class MyTime:
+
+    def __init__(self):
+        '''
+        default variables for time calculations
+        '''
+        self.foo = 'foo'
