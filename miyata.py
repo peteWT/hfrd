@@ -1,7 +1,7 @@
 import util as ut
 from operator import sub
 
-costData =ut.gData(
+costData = ut.gData(
     '1TsHo2wyvzKYugiDudPHFJjtFS--5ZBcWNb2gGopteX4',
     1475511425)
 constants = ut.gData(
@@ -10,6 +10,8 @@ constants = ut.gData(
 fedtx, ltx, freight, salv, life, sophr, ptime = [constants.iloc[i].to_dict() for i in range(len(constants))]
 
 # ## Depreciation
+
+
 class DpAsset:
     """Calcultaing depreciation of an asset"""
 
@@ -31,7 +33,6 @@ class DpAsset:
         else:
             return self.s*self.p
 
-        
     def depRate(self):
         '''
         Depreciation Rate
@@ -65,8 +66,8 @@ class DpAsset:
             undepValue = undepValue - annDep
         return sched
 
-    def depSOYD2(self, sval = None):
-        '''Declining balance method'''
+    def depSOYD(self, sval = None):
+        '''Sum-of-years-digits method'''
         if sval is None:
             salvage = self.sVal()
         else:
@@ -75,19 +76,41 @@ class DpAsset:
         undepValue = self.p
         tDep = self.p - salvage
         annDep = 0
-        sched['year0'] = (annDep,undepValue)
-        years = range(1,int(self.n)+1)
-        revyears= sorted(years, reverse=True)
+        sched['year0'] = (annDep, undepValue)
+        years = range(1, int(self.n) + 1)
+        revyears = sorted(years, reverse=True)
         for y in range(len(years)):
             annDep = tDep * revyears[y]/sum(years)
             undepValue = undepValue - annDep
             sched['year' + str(years[y])] = (annDep, undepValue)
         return sched
 
+
 class MyTime:
 
     def __init__(self):
         '''
         default variables for time calculations
+        SH = shceduled time
+        H = productive time
         '''
-        self.foo = 'foo'
+        self.capFactor = 0.9
+        self.hrsPerDay = 8
+        self.annWorkDays = 5*52*self.hrsPerDay
+        self.SH = self.capFactor * self.annWorkDays
+        self.utRate = {"Chain saw-straight blade": 0.5,
+                       "Chain saw-bow blade": 0.5,
+                       "Big stick loader": 0.9,
+                       "Shortwood hydraulic loader": 0.65,
+                       "Longwood hydraulic loader": 0.64,
+                       "Uniloader": 0.6,
+                       "Frontend loader": 0.6,
+                       "Cable skidder": 0.67,
+                       "Grapple skidder": 0.67,
+                       "Shortwood prehauler Longwood prehauler": 0.64,
+                       "Feller-buncher": 0.65,
+                       "Chipper": 0.75,
+                       "Slasher": 0.67}
+
+    def H(self, equipU='Grapple skidder'):
+        return self.SH * self.utRate[equipU]
