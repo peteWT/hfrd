@@ -13,35 +13,35 @@ fedtx, ltx, freight, salv, life, sophr, ptime = [constants.iloc[i].to_dict() for
 
 
 class DpAsset:
-    """Calcultaing depreciation of an asset"""
-
-    def __init__(self):
-        '''
-        default variables for depreciation calculations
+    """Calcultaing depreciation of an asset
+    default variables for depreciation calculations
         n = Economic life of the equipment -- default is 5 years
         p = Initial Investment -- default is $85,000
         s = Salvage value --- default is 20% of p
-        '''
-        self.n = 5.0
-        self.p = 85000.00
-        self.s = 0.2
-        self.dbMultiplier = 2.0
+        """
+    n = 5.0
+    p = 85000.00
+    s = 0.2
+    dbMultiplier = 2.0
 
-    def sVal(self, arbitrary=None):
+    @classmethod
+    def sVal(cls, arbitrary=None):
         if arbitrary is not None:
             return arbitrary
         else:
-            return self.s*self.p
+            return cls.s*cls.p
 
-    def depRate(self):
+    @classmethod
+    def depRate(cls):
         '''
         Depreciation Rate
         -----------------
         n: economic life in years
         '''
-        return 1.0/self.n
+        return 1.0/cls.n
 
-    def depStraitLine(self, sval=None):
+    @classmethod
+    def depStraitLine(cls, sval=None):
         '''
         Strait line method
         ------------------
@@ -50,34 +50,36 @@ class DpAsset:
         n: economic life in years
         '''
         if sval is None:
-            salvage = self.sVal()
+            salvage = cls.sVal()
         else:
-            salvage = self.sVal(arbitrary=sval)
-        return (self.p-salvage)/self.n
+            salvage = cls.sVal(arbitrary=sval)
+        return (cls.p-salvage)/cls.n
 
-    def depDecBalance(self):
+    @classmethod
+    def depDecBalance(cls):
         '''Declining balance method'''
         sched = {}
-        undepValue = self.p
+        undepValue = cls.p
         annDep = 0
-        for year in range(int(self.n)):
+        for year in range(int(cls.n)):
             sched['year' + str(year)] = (annDep, undepValue)
-            annDep = undepValue * (self.depRate() * self.dbMultiplier)
+            annDep = undepValue * (cls.depRate() * cls.dbMultiplier)
             undepValue = undepValue - annDep
         return sched
 
-    def depSOYD(self, sval = None):
+    @classmethod
+    def depSOYD(cls, sval=None):
         '''Sum-of-years-digits method'''
         if sval is None:
-            salvage = self.sVal()
+            salvage = cls.sVal()
         else:
-            salvage = self.sVal(arbitrary=sval)
+            salvage = cls.sVal(arbitrary=sval)
         sched = {}
-        undepValue = self.p
-        tDep = self.p - salvage
+        undepValue = cls.p
+        tDep = cls.p - salvage
         annDep = 0
         sched['year0'] = (annDep, undepValue)
-        years = range(1, int(self.n) + 1)
+        years = range(1, int(cls.n) + 1)
         revyears = sorted(years, reverse=True)
         for y in range(len(years)):
             annDep = tDep * revyears[y]/sum(years)
@@ -87,30 +89,37 @@ class DpAsset:
 
 
 class MyTime:
+    '''default variables for time calculations
+    SH = shceduled time
+    H = productive time
+    '''
+    
+    capFactor = 0.9
+    hrsPerDay = 8
+    daysPerWk = 5
+    weeksPerYr = 52
+    utRate = {"Chain saw-straight blade": 0.5,
+              "Chain saw-bow blade": 0.5,
+              "Big stick loader": 0.9,
+              "Shortwood hydraulic loader": 0.65,
+              "Longwood hydraulic loader": 0.64,
+              "Uniloader": 0.6,
+              "Frontend loader": 0.6,
+              "Cable skidder": 0.67,
+              "Grapple skidder": 0.67,
+              "Shortwood prehauler Longwood prehauler": 0.64,
+              "Feller-buncher": 0.65,
+              "Chipper": 0.75,
+              "Slasher": 0.67}
 
-    def __init__(self):
-        '''
-        default variables for time calculations
-        SH = shceduled time
-        H = productive time
-        '''
-        self.capFactor = 0.9
-        self.hrsPerDay = 8
-        self.annWorkDays = 5*52*self.hrsPerDay
-        self.SH = self.capFactor * self.annWorkDays
-        self.utRate = {"Chain saw-straight blade": 0.5,
-                       "Chain saw-bow blade": 0.5,
-                       "Big stick loader": 0.9,
-                       "Shortwood hydraulic loader": 0.65,
-                       "Longwood hydraulic loader": 0.64,
-                       "Uniloader": 0.6,
-                       "Frontend loader": 0.6,
-                       "Cable skidder": 0.67,
-                       "Grapple skidder": 0.67,
-                       "Shortwood prehauler Longwood prehauler": 0.64,
-                       "Feller-buncher": 0.65,
-                       "Chipper": 0.75,
-                       "Slasher": 0.67}
+    @classmethod
+    def annWkDys(cls):
+        return cls.daysPerWk*cls.weeksPerYr*cls.hrsPerDay
 
-    def H(self, equipU='Grapple skidder'):
-        return self.SH * self.utRate[equipU]
+    @classmethod
+    def SH(cls):
+        return cls.capFactor * cls.annWorkDays
+
+    @classmethod
+    def H(cls, equipU='Grapple skidder'):
+        return cls.SH * cls.utRate[equipU]
