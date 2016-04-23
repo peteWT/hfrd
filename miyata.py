@@ -11,18 +11,32 @@ fedtx, ltx, freight, salv, life, sophr, ptime = [constants.iloc[i].to_dict() for
 
 # ## Depreciation
 
+foo = 36
+
+
+def AVI(P, S, N):
+    return (((P-S)*(N+1))/(2*N)) + S
+
 
 class DpAsset:
     """Calcultaing depreciation of an asset
     default variables for depreciation calculations
-        n = Economic life of the equipment -- default is 5 years
-        p = Initial Investment -- default is $85,000
-        s = Salvage value --- default is 20% of p
+    n = Economic life of the equipment -- default is 5 years
+    p = Initial Investment -- default is $85,000
+    s = Percent of innital value used to calculate salvage value
+    --- default is 20% of p
         """
     n = 5.0
     p = 85000.00
     s = 0.2
     dbMultiplier = 2.0
+    intPct = 0.12
+    insPct = 0.03
+    taxPct = 0.03
+
+    @classmethod
+    def AVI(cls, P, S, N):
+        return (((P-S)*(N+1))/(2*N)) + S
 
     @classmethod
     def sVal(cls, arbitrary=None):
@@ -87,13 +101,22 @@ class DpAsset:
             sched['year' + str(years[y])] = (annDep, undepValue)
         return sched
 
+# TODO: Need to add alternate method relevant to SOYD and decBalance methods
+    @classmethod
+    def ITT(cls, ann=False, depMeth=None):
+        if ann is False:
+            avi = AVI(cls.p, cls.sVal(), cls.n)
+            interest = cls.intPct * avi
+            insurance = cls.insPct * avi
+            taxes = cls.taxPct * avi
+            return interest + insurance + taxes
 
-class MyTime:
+
+class MiyTime:
     '''default variables for time calculations
     SH = shceduled time
     H = productive time
     '''
-    
     capFactor = 0.9
     hrsPerDay = 8
     daysPerWk = 5
@@ -123,3 +146,5 @@ class MyTime:
     @classmethod
     def H(cls, equipU='Grapple skidder'):
         return cls.SH * cls.utRate[equipU]
+
+#    class opCost:
