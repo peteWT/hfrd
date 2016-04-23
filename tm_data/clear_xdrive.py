@@ -25,7 +25,7 @@ def mountpoint(uname='pete'):
         return {'mnt': '/media/{0}/'.format(uname),
                 'ddir': '/home/{0}/box.com/'.format(uname),
                 'umt': 'umount'}
-    elif pf.systerm() == 'Darwin':
+    elif pf.system() == 'Darwin':
         return {'mnt': '/Volumes/',
                 'ddir': '/Users/pete/Box Sync/HFRD/',
                 'umt': 'diskutil unmount'}
