@@ -1,6 +1,8 @@
 import util as ut
 from operator import sub
 
+# TODO: Dollars adjusted for inflation
+
 costData = ut.gData(
     '1TsHo2wyvzKYugiDudPHFJjtFS--5ZBcWNb2gGopteX4',
     1475511425)
@@ -9,15 +11,94 @@ constants = ut.gData(
     1199790733)
 fedtx, ltx, freight, salv, life, sophr, ptime = [constants.iloc[i].to_dict() for i in range(len(constants))]
 
-# ## Depreciation
+# Default Variables
+P = 85000.00
+N = 5.0
+sPct = 0.2
+mRatio = 1.1  # times annual depreciation
+DieselLbGal = 7.08
+GasLbGal = 6.01
+fPriceDiesel = 2.614
+fPriceTax = 0.2429
 
-foo = 36
+# ratio of average net horsepower used
+# to average net horsepower available
+hpRatio = 0.65
+
+# Lbs of engine oil consumed between
+# oil changed per horsepower hour
+eOilCons = 0.0006
+
+# Weight of engine oil (lbs/gallon)
+eOilWeight = 7.4
+
+# Percent of engine oil costs for other lubricants
+oLube = 0.5
+
+# Engine oil cost/gallon
+eOilCost = 4.00
 
 
 def AVI(P, S, N):
+    '''average value of yearly investment (AVI)'''
     return (((P-S)*(N+1))/(2*N)) + S
 
 
+def maintCost(dep, mRatio, pTime):
+    '''
+    Calculates annual maintenance costs based on
+    dep = annual depreciation
+    mRatio = percent of depreciation cost assumed for maintenance and,
+    pTime = annual productive time
+    '''
+    return (dep*mRatio)/pTime
+
+
+def gPerHr(lbsHr, hpRatio, hp, fDens):
+    ''' Calculate fuel consumption in gallons/hr using:
+    lbsHr = pounds / hr (FAO 1976)
+    hpRatio = ratio of used to available horsepower
+    hp = horsepower
+    fDens = fuel density in lbs/gallon
+    '''
+    return ((lbsHr * hpRatio)/fDens)*hp
+
+
+def hrFuelCost(gHr, hp, price, tax):
+    '''
+    calculates hourly fuel cost based upon:
+    gHr = fuel consumption (gallons/hr)
+    hp = horsepower
+    price = fuel price ($/gallon)
+    tax = fuel tax ($/gallon)
+    '''
+    return gHr * hp * (price + tax)
+
+
+def Q(hp, hpRatio, cons, oilDens, c, t):
+    '''
+    calculate engine oil consumption (Q)
+    based upon:
+    hp = horsepower
+    hpRatio = ratio of used to available horsepower
+    cons = consumption of engin oil between changes/ hp-hour
+    oilDens = density of engine oil
+    c = crank case capacity
+    t = number of hours between oil changes
+    '''
+    return hp * ((hpRatio * cons) / oilDens) + (c / t)
+
+
+def hourlyQ(q, hp, price, c, t):
+    return (q * hp + (c/t)) * price
+
+
+def oLubeCost(hQ, otherL):
+    return hQ * otherL
+
+# TODO: Add tire cost
+
+# ## Depreciation
 class DpAsset:
     """Calcultaing depreciation of an asset
     default variables for depreciation calculations
@@ -147,4 +228,3 @@ class MiyTime:
     def H(cls, equipU='Grapple skidder'):
         return cls.SH * cls.utRate[equipU]
 
-#    class opCost:
