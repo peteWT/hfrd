@@ -9,11 +9,11 @@ constants = ut.gData(
     1199790733)
 fedtx, ltx, freight, salv, life, sophr, ptime = [constants.iloc[i].to_dict() for i in range(len(constants))]
 
-# ## Depreciation
+N = 5.0
+P = 85000.00
+s = 0.2
 
-foo = 36
-
-
+ 
 def AVI(P, S, N):
     return (((P-S)*(N+1))/(2*N)) + S
 
