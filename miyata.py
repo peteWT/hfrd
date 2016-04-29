@@ -11,92 +11,6 @@ constants = ut.gData(
     1199790733)
 fedtx, ltx, freight, salv, life, sophr, ptime = [constants.iloc[i].to_dict() for i in range(len(constants))]
 
-# Default Variables
-P = 85000.00
-N = 5.0
-sPct = 0.2
-mRatio = 1.1  # times annual depreciation
-DieselLbGal = 7.08
-GasLbGal = 6.01
-fPriceDiesel = 2.614
-fPriceTax = 0.2429
-
-# ratio of average net horsepower used
-# to average net horsepower available
-hpRatio = 0.65
-
-# Lbs of engine oil consumed between
-# oil changed per horsepower hour
-eOilCons = 0.0006
-
-# Weight of engine oil (lbs/gallon)
-eOilWeight = 7.4
-
-# Percent of engine oil costs for other lubricants
-oLube = 0.5
-
-# Engine oil cost/gallon
-eOilCost = 4.00
-
-
-def AVI(P, S, N):
-    '''average value of yearly investment (AVI)'''
-    return (((P-S)*(N+1))/(2*N)) + S
-
-
-def maintCost(dep, mRatio, pTime):
-    '''
-    Calculates annual maintenance costs based on
-    dep = annual depreciation
-    mRatio = percent of depreciation cost assumed for maintenance and,
-    pTime = annual productive time
-    '''
-    return (dep*mRatio)/pTime
-
-
-def gPerHr(lbsHr, hpRatio, hp, fDens):
-    ''' Calculate fuel consumption in gallons/hr using:
-    lbsHr = pounds / hr (FAO 1976)
-    hpRatio = ratio of used to available horsepower
-    hp = horsepower
-    fDens = fuel density in lbs/gallon
-    '''
-    return ((lbsHr * hpRatio)/fDens)*hp
-
-
-def hrFuelCost(gHr, hp, price, tax):
-    '''
-    calculates hourly fuel cost based upon:
-    gHr = fuel consumption (gallons/hr)
-    hp = horsepower
-    price = fuel price ($/gallon)
-    tax = fuel tax ($/gallon)
-    '''
-    return gHr * hp * (price + tax)
-
-
-def Q(hp, hpRatio, cons, oilDens, c, t):
-    '''
-    calculate engine oil consumption (Q)
-    based upon:
-    hp = horsepower
-    hpRatio = ratio of used to available horsepower
-    cons = consumption of engin oil between changes/ hp-hour
-    oilDens = density of engine oil
-    c = crank case capacity
-    t = number of hours between oil changes
-    '''
-    return hp * ((hpRatio * cons) / oilDens) + (c / t)
-
-
-def hourlyQ(q, hp, price, c, t):
-    return (q * hp + (c/t)) * price
-
-
-def oLubeCost(hQ, otherL):
-    return hQ * otherL
-
-# TODO: Add tire cost
 
 # ## Depreciation
 class DpAsset:
@@ -107,25 +21,121 @@ class DpAsset:
     s = Percent of innital value used to calculate salvage value
     --- default is 20% of p
         """
-    n = 5.0
-    p = 85000.00
-    s = 0.2
+
+    # Default Variables
+    P = 85000.00
+    N = 5.0
+    sPct = 0.2
+    mRatio = 1.1  # times annual depreciation
+    DieselLbGal = 7.08
+    GasLbGal = 6.01
+    fPriceDiesel = 2.614
+    fPriceTax = 0.2429
     dbMultiplier = 2.0
     intPct = 0.12
     insPct = 0.03
     taxPct = 0.03
 
-    @classmethod
-    def AVI(cls, P, S, N):
-        return (((P-S)*(N+1))/(2*N)) + S
+    # Labor Costs
+    wages = 15.82  # http://www.bls.gov/oes/current/oes454029.htm#(2)
+
+    # Tires
+    tireCost = 1000.00
+    tireLife = 3000  # Hours
+
+    # ratio of average net horsepower used
+    # to average net horsepower available
+    hpRatio = 0.65
+
+    # Lbs of engine oil consumed between
+    # oil changed per horsepower hour
+    eOilCons = 0.0006
+
+    # Weight of engine oil (lbs/gallon)
+    eOilWeight = 7.4
+
+    # Percent of engine oil costs for other lubricants
+    oLube = 0.5
+
+    # Engine oil cost/gallon
+    eOilCost = 4.00
 
     @classmethod
-    def sVal(cls, arbitrary=None):
+    def AVI(cls):
+        '''average value of yearly investment (AVI)'''
+        return (((cls.P-cls.sVal())*(cls.N+1))/(2*cls.N)) + cls.S
+
+    @classmethod
+    def maintCost(cls, dep):
+        '''
+        Calculates annual maintenance costs based on
+        dep = annual depreciation
+        mRatio = percent of depreciation cost assumed for maintenance and,
+        pTime = annual productive time
+        '''
+        return (dep*cls.mRatio)/cls.pTime
+
+    @classmethod
+    def gPerHr(cls):
+        ''' Calculate fuel consumption in gallons/hr using:
+        lbsHr = pounds / hr (FAO 1976)
+        hpRatio = ratio of used to available horsepower
+        hp = horsepower
+        fDens = fuel density in lbs/gallon
+        '''
+        return ((cls.lbsHr * cls.hpRatio)/fDens)*hp
+
+    @classmethod
+    def hrFuelCost(gHr, hp, price, tax):
+        '''
+        calculates hourly fuel cost based upon:
+        gHr = fuel consumption (gallons/hr)
+        hp = horsepower
+        price = fuel price ($/gallon)
+        tax = fuel tax ($/gallon)
+        '''
+        return gHr * hp * (price + tax)
+
+    @classmethod
+    def Q(hp, hpRatio, cons, oilDens, c, t):
+        '''
+        calculate engine oil consumption (Q)
+        based upon:
+        hp = horsepower
+        hpRatio = ratio of used to available horsepower
+        cons = consumption of engin oil between changes/ hp-hour
+        oilDens = density of engine oil
+        c = crank case capacity
+        t = number of hours between oil changes
+        '''
+        return hp * ((hpRatio * cons) / oilDens) + (c / t)
+
+    @classmethod
+    def hourlyQ(q, hp, price, c, t):
+        return (q * hp + (c/t)) * price
+
+    @classmethod
+    def oLubeCost(hQ, otherL):
+        return hQ * otherL
+
+    @classmethod
+    def hTireCost(tCost=tireCost, tLife=tireLife,  maintPct=0.15):
+        """
+        calculates hourly tire costData
+        """
+        return ((1+maintPct)*tCost)/tLife
+
+    @classmethod
+    def sVal(s=sPct, p=P, arbitrary=None):
+        '''
+        calculate salvage value as a percantage of P
+        '''
         if arbitrary is not None:
             return arbitrary
         else:
-            return cls.s*cls.p
+            return sPct*p
 
+        
     @classmethod
     def depRate(cls):
         '''
@@ -145,9 +155,9 @@ class DpAsset:
         n: economic life in years
         '''
         if sval is None:
-            salvage = cls.sVal()
+            salvage = sVal()
         else:
-            salvage = cls.sVal(arbitrary=sval)
+            salvage = sVal(arbitrary=sval)
         return (cls.p-salvage)/cls.n
 
     @classmethod
@@ -166,7 +176,7 @@ class DpAsset:
     def depSOYD(cls, sval=None):
         '''Sum-of-years-digits method'''
         if sval is None:
-            salvage = cls.sVal()
+            salvage = sVal()
         else:
             salvage = cls.sVal(arbitrary=sval)
         sched = {}
@@ -186,7 +196,7 @@ class DpAsset:
     @classmethod
     def ITT(cls, ann=False, depMeth=None):
         if ann is False:
-            avi = AVI(cls.p, cls.sVal(), cls.n)
+            avi = AVI(cls.p, sVal(), cls.n)
             interest = cls.intPct * avi
             insurance = cls.insPct * avi
             taxes = cls.taxPct * avi
@@ -222,9 +232,8 @@ class MiyTime:
 
     @classmethod
     def SH(cls):
-        return cls.capFactor * cls.annWorkDays
+        return cls.capFactor * cls.annWkDys()
 
     @classmethod
     def H(cls, equipU='Grapple skidder'):
-        return cls.SH * cls.utRate[equipU]
-
+        return cls.SH() * cls.utRate[equipU]
