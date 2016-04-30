@@ -59,6 +59,7 @@ class DpAsset:
     # Tires
     tireCost = 1000.00
     tireLife = 3000  # Hours
+    tireMpct = 0.15
 
     # Lbs of engine oil consumed between
     # oil changed per horsepower hour
@@ -82,7 +83,7 @@ class DpAsset:
     @classmethod
     def AVI(cls):
         '''average value of yearly investment (AVI)'''
-        return (((cls.P-cls.sVal())*(cls.N+1))/(2*cls.N)) + cls.S
+        return (((cls.P-cls.sVal())*(cls.N+1))/(2*cls.N)) + cls.sVal()
 
     @classmethod
     def maintCost(cls, dep):
@@ -105,7 +106,7 @@ class DpAsset:
         return ((cls.fCosnHpHr * cls.hpRatio)/cls.fDens)*cls.hp
 
     @classmethod
-    def hrFuelCost(cls)
+    def hrFuelCost(cls):
         '''
         calculates hourly fuel cost based upon:
         gHr = fuel consumption (gallons/hr)
@@ -130,29 +131,29 @@ class DpAsset:
         return cls.hpRatio * ((cls.hpRatio * cls.eOilCons) / cls.eOilWeight) + (cls.cCap / cls.cTime)
 
     @classmethod
-    def hourlyQ(cls, q, hp, price, c, t):
+    def hourlyQ(cls):
         return (cls.Q() * cls.hp + (cls.cCap/cls.cTime)) * (cls.fPriceDiesel + cls.fPriceTax)
 
     @classmethod
-    def oLubeCost(hQ, otherL):
-        return hQ * otherL
+    def oLubeCost(cls):
+        return cls.hourlyQ() * cls.oLube
 
     @classmethod
-    def hTireCost(tCost=tireCost, tLife=tireLife,  maintPct=0.15):
+    def hTireCost(cls):
         """
         calculates hourly tire costData
         """
-        return ((1+maintPct)*tCost)/tLife
+        return ((1+cls.tireMpct)*cls.tireCost)/cls.tireLife
 
     @classmethod
-    def sVal(s=sPct, p=P, arbitrary=None):
+    def sVal(cls, arbitrary=None):
         '''
         calculate salvage value as a percantage of P
         '''
         if arbitrary is not None:
             return arbitrary
         else:
-            return sPct*p
+            return cls.sPct*cls.P
 
         
     @classmethod
@@ -162,7 +163,7 @@ class DpAsset:
         -----------------
         n: economic life in years
         '''
-        return 1.0/cls.n
+        return 1.0/cls.N
 
     @classmethod
     def depStraitLine(cls, sval=None):
@@ -174,18 +175,18 @@ class DpAsset:
         n: economic life in years
         '''
         if sval is None:
-            salvage = sVal()
+            salvage = cls.sVal()
         else:
-            salvage = sVal(arbitrary=sval)
-        return (cls.p-salvage)/cls.n
+            salvage = cls.sVal(arbitrary=sval)
+        return (cls.P-salvage)/cls.N
 
     @classmethod
     def depDecBalance(cls):
         '''Declining balance method'''
         sched = {}
-        undepValue = cls.p
+        undepValue = cls.P
         annDep = 0
-        for year in range(int(cls.n)):
+        for year in range(int(cls.N)):
             sched['year' + str(year)] = (annDep, undepValue)
             annDep = undepValue * (cls.depRate() * cls.dbMultiplier)
             undepValue = undepValue - annDep
@@ -195,15 +196,15 @@ class DpAsset:
     def depSOYD(cls, sval=None):
         '''Sum-of-years-digits method'''
         if sval is None:
-            salvage = sVal()
+            salvage = cls.sVal()
         else:
             salvage = cls.sVal(arbitrary=sval)
         sched = {}
-        undepValue = cls.p
-        tDep = cls.p - salvage
+        undepValue = cls.P
+        tDep = cls.P - salvage
         annDep = 0
         sched['year0'] = (annDep, undepValue)
-        years = range(1, int(cls.n) + 1)
+        years = range(1, int(cls.N) + 1)
         revyears = sorted(years, reverse=True)
         for y in range(len(years)):
             annDep = tDep * revyears[y]/sum(years)
@@ -215,7 +216,7 @@ class DpAsset:
     @classmethod
     def ITT(cls, ann=False, depMeth=None):
         if ann is False:
-            avi = AVI(cls.p, sVal(), cls.n)
+            avi = AVI(cls.P, cls.sVal(), cls.N)
             interest = cls.intPct * avi
             insurance = cls.insPct * avi
             taxes = cls.taxPct * avi
