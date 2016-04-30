@@ -27,14 +27,31 @@ class DpAsset:
     N = 5.0
     sPct = 0.2
     mRatio = 1.1  # times annual depreciation
+
+    # Fuel Density
     DieselLbGal = 7.08
     GasLbGal = 6.01
+
+    # Fuel consumption
+    fCosnHpHr = 0.4
+    
+    # Fuel Price
     fPriceDiesel = 2.614
     fPriceTax = 0.2429
+
+    # Depreciation 
     dbMultiplier = 2.0
+
+    # Interest insurance andf taxes
     intPct = 0.12
     insPct = 0.03
     taxPct = 0.03
+
+    # Machine horsepower
+    hp = 150
+    # ratio of average net horsepower used
+    # to average net horsepower available
+    hpRatio = 0.65
 
     # Labor Costs
     wages = 15.82  # http://www.bls.gov/oes/current/oes454029.htm#(2)
@@ -42,10 +59,6 @@ class DpAsset:
     # Tires
     tireCost = 1000.00
     tireLife = 3000  # Hours
-
-    # ratio of average net horsepower used
-    # to average net horsepower available
-    hpRatio = 0.65
 
     # Lbs of engine oil consumed between
     # oil changed per horsepower hour
@@ -60,6 +73,12 @@ class DpAsset:
     # Engine oil cost/gallon
     eOilCost = 4.00
 
+    #Crank case capacity
+    cCap = 5  # gallons
+
+    #Time between crank case oil changes
+    cTime = 90  # hrs
+    
     @classmethod
     def AVI(cls):
         '''average value of yearly investment (AVI)'''
@@ -78,15 +97,15 @@ class DpAsset:
     @classmethod
     def gPerHr(cls):
         ''' Calculate fuel consumption in gallons/hr using:
-        lbsHr = pounds / hr (FAO 1976)
+        lbsHr = pounds / hp hr (FAO 1976)
         hpRatio = ratio of used to available horsepower
         hp = horsepower
         fDens = fuel density in lbs/gallon
         '''
-        return ((cls.lbsHr * cls.hpRatio)/fDens)*hp
+        return ((cls.fCosnHpHr * cls.hpRatio)/cls.fDens)*cls.hp
 
     @classmethod
-    def hrFuelCost(gHr, hp, price, tax):
+    def hrFuelCost(cls)
         '''
         calculates hourly fuel cost based upon:
         gHr = fuel consumption (gallons/hr)
@@ -94,10 +113,10 @@ class DpAsset:
         price = fuel price ($/gallon)
         tax = fuel tax ($/gallon)
         '''
-        return gHr * hp * (price + tax)
+        return cls.gPerHr() * cls.hp * (cls.fPriceDiesel + cls.fPriceTax)
 
     @classmethod
-    def Q(hp, hpRatio, cons, oilDens, c, t):
+    def Q(cls):
         '''
         calculate engine oil consumption (Q)
         based upon:
@@ -108,11 +127,11 @@ class DpAsset:
         c = crank case capacity
         t = number of hours between oil changes
         '''
-        return hp * ((hpRatio * cons) / oilDens) + (c / t)
+        return cls.hpRatio * ((cls.hpRatio * cls.eOilCons) / cls.eOilWeight) + (cls.cCap / cls.cTime)
 
     @classmethod
-    def hourlyQ(q, hp, price, c, t):
-        return (q * hp + (c/t)) * price
+    def hourlyQ(cls, q, hp, price, c, t):
+        return (cls.Q() * cls.hp + (cls.cCap/cls.cTime)) * (cls.fPriceDiesel + cls.fPriceTax)
 
     @classmethod
     def oLubeCost(hQ, otherL):
