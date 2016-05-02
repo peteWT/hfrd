@@ -1,5 +1,4 @@
 import util as ut
-from operator import sub
 
 # TODO: Dollars adjusted for inflation
 
@@ -16,9 +15,9 @@ fedtx, ltx, freight, salv, life, sophr, ptime = [constants.iloc[i].to_dict() for
 class DpAsset:
     """Calcultaing depreciation of an asset
     default variables for depreciation calculations
-    n = Economic life of the equipment -- default is 5 years
-    p = Initial Investment -- default is $85,000
-    s = Percent of innital value used to calculate salvage value
+    N = Economic life of the equipment -- default is 5 years
+    P = Initial Investment -- default is $85,000
+    sPct = Percent of innital value used to calculate salvage value
     --- default is 20% of p
         """
 
@@ -34,12 +33,12 @@ class DpAsset:
 
     # Fuel consumption
     fCosnHpHr = 0.4
-    
+
     # Fuel Price
     fPriceDiesel = 2.614
     fPriceTax = 0.2429
 
-    # Depreciation 
+    # Depreciation
     dbMultiplier = 2.0
 
     # Interest insurance andf taxes
@@ -58,6 +57,7 @@ class DpAsset:
 
     # Tires
     tireCost = 1000.00
+    tireRetread = 500.00
     tireLife = 3000  # Hours
     tireMpct = 0.15
 
@@ -68,32 +68,35 @@ class DpAsset:
     # Weight of engine oil (lbs/gallon)
     eOilWeight = 7.4
 
+    #Engine oil price
+    oPrice = 400.0/55.0
+    
     # Percent of engine oil costs for other lubricants
     oLube = 0.5
 
     # Engine oil cost/gallon
     eOilCost = 4.00
 
-    #Crank case capacity
+    # Crank case capacity
     cCap = 5  # gallons
 
-    #Time between crank case oil changes
+    # Time between crank case oil changes
     cTime = 90  # hrs
-    
+
     @classmethod
     def AVI(cls):
         '''average value of yearly investment (AVI)'''
         return (((cls.P-cls.sVal())*(cls.N+1))/(2*cls.N)) + cls.sVal()
 
     @classmethod
-    def maintCost(cls, dep):
+    def maintCost(cls, dep, SH):
         '''
         Calculates annual maintenance costs based on
         dep = annual depreciation
         mRatio = percent of depreciation cost assumed for maintenance and,
         pTime = annual productive time
         '''
-        return (dep*cls.mRatio)/cls.pTime
+        return (dep*cls.mRatio)/SH
 
     @classmethod
     def gPerHr(cls):
@@ -103,7 +106,7 @@ class DpAsset:
         hp = horsepower
         fDens = fuel density in lbs/gallon
         '''
-        return ((cls.fCosnHpHr * cls.hpRatio)/cls.fDens)*cls.hp
+        return (cls.fCosnHpHr * cls.hpRatio)/cls.DieselLbGal
 
     @classmethod
     def hrFuelCost(cls):
@@ -132,7 +135,7 @@ class DpAsset:
 
     @classmethod
     def hourlyQ(cls):
-        return (cls.Q() * cls.hp + (cls.cCap/cls.cTime)) * (cls.fPriceDiesel + cls.fPriceTax)
+        return (cls.Q() * cls.hp + (cls.cCap/cls.cTime)) * (cls.oPrice + cls.fPriceTax)
 
     @classmethod
     def oLubeCost(cls):
@@ -143,7 +146,7 @@ class DpAsset:
         """
         calculates hourly tire costData
         """
-        return ((1+cls.tireMpct)*cls.tireCost)/cls.tireLife
+        return ((1+cls.tireMpct)*(cls.tireCost+cls.tireRetread))/cls.tireLife
 
     @classmethod
     def sVal(cls, arbitrary=None):
@@ -155,7 +158,6 @@ class DpAsset:
         else:
             return cls.sPct*cls.P
 
-        
     @classmethod
     def depRate(cls):
         '''
@@ -170,9 +172,6 @@ class DpAsset:
         '''
         Strait line method
         ------------------
-        p: innital investment cost of equipment
-        s: salvage value
-        n: economic life in years
         '''
         if sval is None:
             salvage = cls.sVal()
@@ -216,7 +215,7 @@ class DpAsset:
     @classmethod
     def ITT(cls, ann=False, depMeth=None):
         if ann is False:
-            avi = AVI(cls.P, cls.sVal(), cls.N)
+            avi = cls.AVI(cls.P, cls.sVal(), cls.N)
             interest = cls.intPct * avi
             insurance = cls.insPct * avi
             taxes = cls.taxPct * avi
@@ -248,12 +247,35 @@ class MiyTime:
 
     @classmethod
     def annWkDys(cls):
+        '''Annual work days'''
         return cls.daysPerWk*cls.weeksPerYr*cls.hrsPerDay
 
     @classmethod
     def SH(cls):
+        '''Scheduled time (SH)'''
         return cls.capFactor * cls.annWkDys()
 
     @classmethod
     def H(cls, equipU='Grapple skidder'):
-        return cls.SH() * cls.utRate[equipU]
+        ''' Productive Time (H)'''
+        if isinstance(equipU, float) is True:
+            rate = equipU
+        elif isinstance(equipU, str) is True:
+            rate = cls.utRate[equipU]
+        return cls.SH() * rate
+
+
+
+    def fixedAnnual(dep, avi, iit, H):
+    """Calculates fixed annual costs"""
+    return {'Depreciation': dep,
+            'Average vaule of yearly investment': avi,
+            'Interest insurance and taxes': iit,
+            'Fixed annual costs': dep + (avi * iit)}
+
+fixedCosts = (DpAsset.depStraitLine() + DpAsset.AVI())/MiyTime.H()
+maintenance = DpAsset.maintCost(DpAsset.depStraitLine(), MiyTime.H())
+fuel = DpAsset.hrFuelCost()
+
+oil = DpAsset.hourlyQ() + DpAsset.oLubeCost()
+tires = DpAsset.hTireCost()
