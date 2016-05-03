@@ -1,4 +1,5 @@
 import util as ut
+import numpy as np
 
 # TODO: Dollars adjusted for inflation
 
@@ -20,7 +21,6 @@ class DpAsset:
     sPct = Percent of innital value used to calculate salvage value
     --- default is 20% of p
         """
-
     # Default Variables
     P = 85000.00
     N = 5.0
@@ -198,9 +198,9 @@ class DpAsset:
 
 # TODO: Need to add alternate method relevant to SOYD and decBalance methods
     @classmethod
-    def ITT(cls, ann=False, depMeth=None):
+    def IIT(cls, ann=False, depMeth=None):
         if ann is False:
-            avi = cls.AVI(cls.P, cls.S, cls.N)
+            avi = cls.AVI()
             interest = cls.intPct * avi
             insurance = cls.insPct * avi
             taxes = cls.taxPct * avi
@@ -241,18 +241,26 @@ class MiyTime:
         return cls.capFactor * cls.annWkDys()
 
     @classmethod
-    def H(cls, equipU='Grapple skidder'):
-        ''' Productive Time (H)'''
+    def H(cls, equipU='mean'):
+        ''' 
+        Productive Time (H)
+        equipU can be:
+        1. an arbitrary percentage (formatted as a decimal)
+        2. string value of one of the keys in utRate
+        3. DEFAULT: 'mean' meanign that the average utilization rate from all values in utRate is used.
+        '''
         if isinstance(equipU, float) is True:
             rate = equipU
-        elif isinstance(equipU, str) is True:
+        elif equipU == 'mean':
+            rate = np.mean(cls.utRate.values())
+        elif equipU in cls.utRate.keys():
             rate = cls.utRate[equipU]
         return cls.SH() * rate
 
 
 def fixedCost(dep, avi, iit, H):
     """Calculates fixed annual costs"""
-    ann = dep + (avi * iit)
+    ann = dep + iit
     hourly = ann/H
     return {'Depreciation': dep,
             'Average vaule of yearly investment': avi,
