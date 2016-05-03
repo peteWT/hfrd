@@ -266,16 +266,45 @@ class MiyTime:
 
 
 
-    def fixedAnnual(dep, avi, iit, H):
+def fixedCost(dep, avi, iit, H):
     """Calculates fixed annual costs"""
+    ann = dep + (avi * iit)
+    hourly = ann/H
     return {'Depreciation': dep,
             'Average vaule of yearly investment': avi,
             'Interest insurance and taxes': iit,
-            'Fixed annual costs': dep + (avi * iit)}
+            'Fixed annual costs': ann,
+            'Fixed cost per H': hourly
+    }
 
-fixedCosts = (DpAsset.depStraitLine() + DpAsset.AVI())/MiyTime.H()
-maintenance = DpAsset.maintCost(DpAsset.depStraitLine(), MiyTime.H())
-fuel = DpAsset.hrFuelCost()
+def operatingCost(fuel, oilLube, tires, maint, H):
+    """
+    fuel = annual fuel cost
+    oilLube = annual oil and lubricant costs
+    tires = tire cost/hour inc. maintenance
+    maint = maintenance and repair costs
+    H = Productive hours
+    """
+    hMaint = maint/H
+    return {'Hourly maintenance and repair': hMaint,
+            'Fuel': fuel,
+            'Oil & lubricants': oilLube,
+            'Tires' : tires,
+            'Operating cost' : fuel+hMaint+oilLube+tires
+    }
 
-oil = DpAsset.hourlyQ() + DpAsset.oLubeCost()
-tires = DpAsset.hTireCost()
+def machineCostPerH(fixed, operating):
+    """
+    fixed = fixed costs
+    operating = operating costs 
+    """
+    return {'Machine cost per H': fixed + operating}
+
+
+def PMH(machine, laborCost, laborU):
+    """
+    machine = machine cost per hourly
+    laborCost = labor cost
+    laborU = labor utilization rate
+    """
+    return machine + (laborCost * laborU)
