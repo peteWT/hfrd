@@ -26,6 +26,7 @@ class DpAsset:
     N = 5.0
     sPct = 0.2
     mRatio = 1.1  # times annual depreciation
+    S = sPct * P
 
     # Fuel Density
     DieselLbGal = 7.08
@@ -86,7 +87,7 @@ class DpAsset:
     @classmethod
     def AVI(cls):
         '''average value of yearly investment (AVI)'''
-        return (((cls.P-cls.sVal())*(cls.N+1))/(2*cls.N)) + cls.sVal()
+        return (((cls.P-cls.S)*(cls.N+1))/(2*cls.N)) + cls.S
 
     @classmethod
     def maintCost(cls, dep, SH):
@@ -148,15 +149,6 @@ class DpAsset:
         """
         return ((1+cls.tireMpct)*(cls.tireCost+cls.tireRetread))/cls.tireLife
 
-    @classmethod
-    def sVal(cls, arbitrary=None):
-        '''
-        calculate salvage value as a percantage of P
-        '''
-        if arbitrary is not None:
-            return arbitrary
-        else:
-            return cls.sPct*cls.P
 
     @classmethod
     def depRate(cls):
@@ -168,16 +160,12 @@ class DpAsset:
         return 1.0/cls.N
 
     @classmethod
-    def depStraitLine(cls, sval=None):
+    def depStraitLine(cls):
         '''
         Strait line method
         ------------------
         '''
-        if sval is None:
-            salvage = cls.sVal()
-        else:
-            salvage = cls.sVal(arbitrary=sval)
-        return (cls.P-salvage)/cls.N
+        return (cls.P-cls.S)/cls.N
 
     @classmethod
     def depDecBalance(cls):
@@ -192,12 +180,9 @@ class DpAsset:
         return sched
 
     @classmethod
-    def depSOYD(cls, sval=None):
+    def depSOYD(cls):
         '''Sum-of-years-digits method'''
-        if sval is None:
-            salvage = cls.sVal()
-        else:
-            salvage = cls.sVal(arbitrary=sval)
+        salvage = cls.S
         sched = {}
         undepValue = cls.P
         tDep = cls.P - salvage
@@ -215,7 +200,7 @@ class DpAsset:
     @classmethod
     def ITT(cls, ann=False, depMeth=None):
         if ann is False:
-            avi = cls.AVI(cls.P, cls.sVal(), cls.N)
+            avi = cls.AVI(cls.P, cls.S, cls.N)
             interest = cls.intPct * avi
             insurance = cls.insPct * avi
             taxes = cls.taxPct * avi
@@ -265,7 +250,6 @@ class MiyTime:
         return cls.SH() * rate
 
 
-
 def fixedCost(dep, avi, iit, H):
     """Calculates fixed annual costs"""
     ann = dep + (avi * iit)
@@ -274,8 +258,8 @@ def fixedCost(dep, avi, iit, H):
             'Average vaule of yearly investment': avi,
             'Interest insurance and taxes': iit,
             'Fixed annual costs': ann,
-            'Fixed cost per H': hourly
-    }
+            'Fixed cost per H': hourly}
+
 
 def operatingCost(fuel, oilLube, tires, maint, H):
     """
@@ -289,14 +273,14 @@ def operatingCost(fuel, oilLube, tires, maint, H):
     return {'Hourly maintenance and repair': hMaint,
             'Fuel': fuel,
             'Oil & lubricants': oilLube,
-            'Tires' : tires,
-            'Operating cost' : fuel+hMaint+oilLube+tires
-    }
+            'Tires': tires,
+            'Operating cost': fuel+hMaint+oilLube+tires}
+
 
 def machineCostPerH(fixed, operating):
     """
     fixed = fixed costs
-    operating = operating costs 
+    operating = operating costs
     """
     return {'Machine cost per H': fixed + operating}
 
