@@ -1,15 +1,19 @@
 import util as ut
 import numpy as np
+import pandas as pd
 
 # TODO: Dollars adjusted for inflation
 
-costData = ut.gData(
-    '1TsHo2wyvzKYugiDudPHFJjtFS--5ZBcWNb2gGopteX4',
-    1475511425)
-constants = ut.gData(
-    '1TsHo2wyvzKYugiDudPHFJjtFS--5ZBcWNb2gGopteX4',
-    1199790733)
-fedtx, ltx, freight, salv, life, sophr, ptime = [constants.iloc[i].to_dict() for i in range(len(constants))]
+#costData = ut.gData(
+#    '1TsHo2wyvzKYugiDudPHFJjtFS--5ZBcWNb2gGopteX4',
+#    1475511425)
+#constants = ut.gData(
+#    '1TsHo2wyvzKYugiDudPHFJjtFS--5ZBcWNb2gGopteX4',
+#    1199790733)
+#fedtx, ltx, freight, salv, life, sophr, ptime = [constants.iloc[i].to_dict() for i in range(len(constants))]
+
+costData = pd.read_csv('EquipCost.csv')
+costData.columns = [i.lower().replace(' ', '') for i in costData.columns]
 
 
 # ## Depreciation
@@ -64,12 +68,12 @@ class DpAsset:
 
     # Lbs of engine oil consumed between
     # oil changed per horsepower hour
-    eOilCons = 0.0006
+    eOilCons = 0.006
 
     # Weight of engine oil (lbs/gallon)
     eOilWeight = 7.4
 
-    #Engine oil price
+    # Engine oil price
     oPrice = 400.0/55.0
     
     # Percent of engine oil costs for other lubricants
@@ -123,7 +127,7 @@ class DpAsset:
     @classmethod
     def Q(cls):
         '''
-        calculate engine oil consumption (Q)
+        calculate engine oil hourly consumption (Q)
         based upon:
         hp = horsepower
         hpRatio = ratio of used to available horsepower
@@ -135,12 +139,13 @@ class DpAsset:
         return cls.hpRatio * ((cls.hpRatio * cls.eOilCons) / cls.eOilWeight) + (cls.cCap / cls.cTime)
 
     @classmethod
-    def hourlyQ(cls):
-        return (cls.Q() * cls.hp + (cls.cCap/cls.cTime)) * (cls.oPrice + cls.fPriceTax)
+    def qCost(cls):
+        'hourly engine oil cost'
+        return DpAsset.Q()*DpAsset.eOilCost
 
     @classmethod
     def oLubeCost(cls):
-        return cls.hourlyQ() * cls.oLube
+        return cls.qCost() * cls.oLube
 
     @classmethod
     def hTireCost(cls):
@@ -148,7 +153,6 @@ class DpAsset:
         calculates hourly tire costData
         """
         return ((1+cls.tireMpct)*(cls.tireCost+cls.tireRetread))/cls.tireLife
-
 
     @classmethod
     def depRate(cls):
@@ -216,19 +220,19 @@ class MiyTime:
     hrsPerDay = 8
     daysPerWk = 5
     weeksPerYr = 52
-    utRate = {"Chain saw-straight blade": 0.5,
-              "Chain saw-bow blade": 0.5,
-              "Big stick loader": 0.9,
-              "Shortwood hydraulic loader": 0.65,
-              "Longwood hydraulic loader": 0.64,
-              "Uniloader": 0.6,
-              "Frontend loader": 0.6,
-              "Cable skidder": 0.67,
-              "Grapple skidder": 0.67,
-              "Shortwood prehauler Longwood prehauler": 0.64,
-              "Feller-buncher": 0.65,
-              "Chipper": 0.75,
-              "Slasher": 0.67}
+    utRateEq = {"Chain saw-straight blade": 0.5,
+                "Chain saw-bow blade": 0.5,
+                "Big stick loader": 0.9,
+                "Shortwood hydraulic loader": 0.65,
+                "Longwood hydraulic loader": 0.64,
+                "Uniloader": 0.6,
+                "Frontend loader": 0.6,
+                "Cable skidder": 0.67,
+                "Grapple skidder": 0.67,
+                "Shortwood prehauler Longwood prehauler": 0.64,
+                "Feller-buncher": 0.65,
+                "Chipper": 0.75,
+                "Slasher": 0.67}
 
     @classmethod
     def annWkDys(cls):
@@ -241,32 +245,39 @@ class MiyTime:
         return cls.capFactor * cls.annWkDys()
 
     @classmethod
-    def H(cls, equipU='mean'):
-        ''' 
-        Productive Time (H)
-        equipU can be:
+    def utRate(cls, method='mean'):
+        '''
+        method can can be:
         1. an arbitrary percentage (formatted as a decimal)
         2. string value of one of the keys in utRate
-        3. DEFAULT: 'mean' meanign that the average utilization rate from all values in utRate is used.
+        3. DEFAULT: 'mean' --
+        the average utilization rate from all values in utRate is used.
         '''
-        if isinstance(equipU, float) is True:
-            rate = equipU
-        elif equipU == 'mean':
-            rate = np.mean(cls.utRate.values())
-        elif equipU in cls.utRate.keys():
-            rate = cls.utRate[equipU]
-        return cls.SH() * rate
+        if isinstance(method, float) is True:
+            rate = method
+        elif method == 'mean':
+            rate = np.mean(cls.utRateEq.values())
+        elif method in cls.utRateEq.keys():
+            rate = cls.utRateEq[method]
+        return rate
+    
+    @classmethod
+    def H(cls, utR):
+        ''' 
+        Productive Time (H)
+        '''
+        return cls.SH() * utR
 
 
 def fixedCost(dep, avi, iit, H):
     """Calculates fixed annual costs"""
     ann = dep + iit
     hourly = ann/H
-    return {'Depreciation': dep,
-            'Average vaule of yearly investment': avi,
-            'Interest insurance and taxes': iit,
-            'Fixed annual costs': ann,
-            'Fixed cost per H': hourly}
+    return {'Depreciation (annual)': [dep],
+            'Average vaule of\nyearly investment': [avi],
+            'Interest insurance and taxes': [iit],
+            'Fixed annual costs': [ann],
+            'Fixed cost per H': [hourly]}
 
 
 def operatingCost(fuel, oilLube, tires, maint, H):
@@ -278,11 +289,11 @@ def operatingCost(fuel, oilLube, tires, maint, H):
     H = Productive hours
     """
     hMaint = maint/H
-    return {'Hourly maintenance and repair': hMaint,
-            'Fuel': fuel,
-            'Oil & lubricants': oilLube,
-            'Tires': tires,
-            'Operating cost': fuel+hMaint+oilLube+tires}
+    return {'Hourly maintenance\nand repair': [hMaint],
+            'Fuel': [fuel],
+            'Oil & lubricants': [oilLube],
+            'Tires': [tires],
+            'Operating cost': [fuel+hMaint+oilLube+tires]}
 
 
 def machineCostPerH(fixed, operating):
@@ -290,7 +301,7 @@ def machineCostPerH(fixed, operating):
     fixed = fixed costs
     operating = operating costs
     """
-    return {'Machine cost per H': fixed + operating}
+    return {'Machine cost per H': [fixed + operating]}
 
 
 def PMH(machine, laborCost, laborU):
