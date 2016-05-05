@@ -64,32 +64,32 @@ for idx in miy.costData.index:
                                             'Summary': pmh}
 
 head = """
-** {Manufacturer} {Model Number}\n
+## {Manufacturer} {Model Number}\n
 {Description}
 
 """
 summary = """
 
-*** Summary
+## Summary
 
 {} 
 
 """
 
 fixed = """
-*** Fixed Costs
+### Fixed Costs
 
 {}
 
 """
 oper = """
-*** Operating Costs
+### Operating Costs
 
 {}
 
 """
 tmc = """
-*** Total Machine Costs
+### Total Machine Costs
 
 {}
 
@@ -112,7 +112,7 @@ for k in results.keys():
 
 f.write('''
 
-** Reference
+## Reference
 
 1. Miyata ES. Determining fixed and operating costs of logging equipment [Internet]. General Technical Report NC-55. 1980. Available from: [[http://www.nrs.fs.fed.us/pubs/gtr/gtr_nc055.pdf?]]
 
