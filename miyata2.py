@@ -4,15 +4,7 @@ import pandas as pd
 
 # TODO: Dollars adjusted for inflation
 
-<<<<<<< HEAD
-N = 5.0
-P = 85000.00
-s = 0.2
 
- 
-def AVI(P, S, N):
-    return (((P-S)*(N+1))/(2*N)) + S
-=======
 #costData = ut.gData(
 #    '1TsHo2wyvzKYugiDudPHFJjtFS--5ZBcWNb2gGopteX4',
 #    1475511425)
@@ -23,7 +15,7 @@ def AVI(P, S, N):
 
 costData = pd.read_csv('EquipCost.csv')
 costData.columns = [i.lower().replace(' ', '') for i in costData.columns]
->>>>>>> fix_variables
+
 
 
 # ## Depreciation
