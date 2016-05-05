@@ -70,9 +70,9 @@ head = """
 """
 summary = """
 
-## Summary
+### Summary
 
-{} 
+{}
 
 """
 
@@ -95,8 +95,8 @@ tmc = """
 
 """
 
-f.write('''* Hazardous fuels reduction demonstration equipment costs
-Input data compiled from manufacturers or contractors and caclulated based on Miyata (1980)''')
+f.write('''# Hazardous fuels reduction demonstration equipment costs
+Input data compiled from manufacturers or contractors and caclulated based on Miyata (1980)\n''')
 
 for k in results.keys():
     f.write(head.format(**results[k]['desc']))

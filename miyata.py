@@ -260,7 +260,7 @@ class MiyTime:
         elif method in cls.utRateEq.keys():
             rate = cls.utRateEq[method]
         return rate
-    
+
     @classmethod
     def H(cls, utR):
         ''' 
@@ -274,7 +274,7 @@ def fixedCost(dep, avi, iit, H):
     ann = dep + iit
     hourly = ann/H
     return {'Depreciation (annual)': [dep],
-            'Average vaule of\nyearly investment': [avi],
+            'Average vaule of yearly investment': [avi],
             'Interest insurance and taxes': [iit],
             'Fixed annual costs': [ann],
             'Fixed cost per H': [hourly]}
@@ -289,7 +289,7 @@ def operatingCost(fuel, oilLube, tires, maint, H):
     H = Productive hours
     """
     hMaint = maint/H
-    return {'Hourly maintenance\nand repair': [hMaint],
+    return {'Hourly maintenance and repair': [hMaint],
             'Fuel': [fuel],
             'Oil & lubricants': [oilLube],
             'Tires': [tires],
