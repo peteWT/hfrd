@@ -2,7 +2,29 @@ import miyata as miy
 import math
 import numpy as np
 from tabulate import tabulate
+import sqlite3
+
+dbname = 'hfrd_machinecost.db'
 f = open('results.md', 'w')
+tables = open('cost_tables.sql', 'r').read()
+con = sqlite3.connect(dbname)
+con.executescript(tables)
+
+eq_sql = '''insert into equipment values(
+'{mfg}',
+'{mod}',
+'{ds}',
+{hp},
+{ccase},
+{oilch_hr},
+{cost_v},
+'{att_d}',
+{att_cost},
+'{misc_d}',
+{misc_cost});'''
+
+prelim_insert = 
+
 
 results = {}
 
@@ -119,3 +141,8 @@ f.write('''
 ''')
 
 f.close()
+
+for e in results.keys():
+... 	mod = e
+... 	mfg = results[e]['desc']['Manufacturer']
+... 	ds = results[e]['desc']['Description']
