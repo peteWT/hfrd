@@ -20,7 +20,9 @@ create table prelim (mfg text,
 		    salvage_vlaue real,
 		    economic_life real,
 		    sched_op_time real,
-		    prod_time real);
+		    prod_time real,
+		    ut_rate real,
+		    pmh real);
 
 drop table if exists fixed;
 
@@ -36,9 +38,9 @@ create table fixed (mfg text,
 drop table if exists op;
 
 create table op (mfg text,
-		    model text,
+       	     	model text,
 		    m_r real,
 		    fuel real,
 		    lubricants real,
-		    tires real
+		    tires real,
 		    labor real);

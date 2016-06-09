@@ -10,7 +10,7 @@ tables = open('cost_tables.sql', 'r').read()
 con = sqlite3.connect(dbname)
 con.executescript(tables)
 
-eq_sql = '''insert into equipment values(
+eqip_insert = '''insert into equipment values(
 '{mfg}',
 '{mod}',
 '{ds}',
@@ -21,9 +21,42 @@ eq_sql = '''insert into equipment values(
 '{att_d}',
 {att_cost},
 '{misc_d}',
-{misc_cost});'''
+{misc_cost});'''.replace('\n', ' ')
 
-prelim_insert = 
+prelim_insert = '''insert into prelim values(
+'{mfg}',
+'{mod}',
+{ii},
+{sv},
+{econ_life},
+{SH},
+{Ht},
+{ut},
+{pmhr});
+'''.replace('\n', ' ')
+
+fixed_insert = '''insert into fixed values(
+'{mfg}',
+'{mod}',
+{an_dep},
+'{dp_m}',
+{avinv},
+{interest},
+{insurance},
+{taxes});
+'''.replace('\n', ' ')
+
+op_insert = '''insert into op values(
+'{mfg}',
+'{mod}',
+{manr},
+{fue},
+{lubr},
+{tir},
+{lab});
+'''.replace('\n', ' ')
+
+
 
 
 results = {}
@@ -84,6 +117,47 @@ for idx in miy.costData.index:
                                             'operating': op,
                                             'total_machine': fm,
                                             'Summary': pmh}
+    # Create tables in the database
+    con.execute(eqip_insert.format(mfg=equipText['Manufacturer'],
+                                   mod=equipText['Model Number'],
+                                   ds=equipText['Description'].replace("'","''"),
+                                   hp=miy.DpAsset.hp,
+                                   ccase=miy.DpAsset.cCap,
+                                   oilch_hr=miy.DpAsset.cTime,
+                                   att_d=idr['optionalattachment'],
+                                   cost_v=idr['equipmentcostwithstandardattachments'],
+                                   att_cost=np.nan_to_num(idr['optionalattachmentcost']),
+                                   misc_cost=np.nan_to_num(idr['miscellaneous']),
+                                   misc_d=' '))
+    con.commit()
+    con.execute(prelim_insert.format(mfg=equipText['Manufacturer'],
+                                     mod=equipText['Model Number'],
+                                     ii=miy.DpAsset.P,
+                                     sv=miy.DpAsset.S,
+                                     econ_life=miy.DpAsset.N,
+                                     SH=miy.MiyTime.SH(),
+                                     Ht=H,
+                                     ut=utRt,
+                                     pmhr=pmh['$/PMH'][0][0]))
+    con.commit()
+    con.execute(fixed_insert.format(mfg=equipText['Manufacturer'],
+                                    mod=equipText['Model Number'],
+                                    an_dep=dep,
+                                    dp_m=idr['depreciationmethod'],
+                                    interest=miy.DpAsset.AVI()*miy.DpAsset.intPct,
+                                    insurance=miy.DpAsset.AVI()*miy.DpAsset.insPct,
+                                    taxes=miy.DpAsset.AVI()*miy.DpAsset.taxPct,
+                                    avinv=miy.DpAsset.AVI()))
+
+    con.commit()
+    con.execute(op_insert.format(mfg=equipText['Manufacturer'],
+                                 mod=equipText['Model Number'],
+                                 manr=miy.DpAsset.maintCost(dep, H),
+                                 fue=miy.DpAsset.hrFuelCost(),
+                                 lubr=miy.DpAsset.oLubeCost(),
+                                 tir=miy.DpAsset.hTireCost(),
+                                 lab=miy.DpAsset.wages))
+    con.commit()
 
 head = """
 ## {Manufacturer} {Model Number}\n
@@ -141,8 +215,3 @@ f.write('''
 ''')
 
 f.close()
-
-for e in results.keys():
-... 	mod = e
-... 	mfg = results[e]['desc']['Manufacturer']
-... 	ds = results[e]['desc']['Description']
