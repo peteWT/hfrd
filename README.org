@@ -1,3 +1,5 @@
+#+OPTIONS: LaTeX:t
+
 * Hazardous Fuels Reduction Project
 ** Estimating sampling intensity by stratum. 
 
@@ -25,6 +27,8 @@ select numplots(stddev(g.hcb)/avg(g.hcb),
 		group by c.geom;
 
  #+END_SRC
+
+#+RESULTS:
 
 
 results in 103 plots.
@@ -56,3 +60,228 @@ plots per unit are:
 | `SL_8`      |           4 |
 | `SL_6`      |           2 |
 | `SL_7`      |           7 |
+
+** Treatment cost and productivity
+
+*** Methods
+
+
+*** Results
+
+**** Treatment System Production and Cost Estimates
+   Time and motion, combined with production (acres treated, volume harvested), and equipment costs collected during this study will provide useful information to land managers evaluating strategies for timber harvesting and fuels reduction.  In analyzing system productivity and cost, it is important to be able to differentiate the effects of machine capability from the effects of the operating conditions.  For each piece of equipment we calculated operating costs based on input from equipment from vendors relevant to each piece of equipment (sale price, rated horsepower, etc.). We assumed some costs are not unique to individual pieces of equipment such as labor and fuel costs.
+
+***** Preliminary Equipment Data
+ We requested general equipment data equipment data from HFRD
+ demonstration participants.  Equipment-specific information was
+ provided by the equipment vendor via a web form (Appendix X). The
+ following are the individual pieces of equipment and general descriptions
+
+ + Caterpillar 299D XHP :: Cat High Flow Compact Track Loader for use in high demand applications. This is a steel track machine (optional) vs rubber belt. Also included is a HM415B designed specificially for the host machine.
+
+ + Fecon FTX128 :: Steel tracked forestry mulcher
+
+ + Takeuchi TB290CL :: Takeuchi TB290 excavator with cab and roadliner track, manual pin-grabber coupler, FAE DML/HY-100 VT mastication head.
+
+
+ + Takeuchi TL12CRH :: Takeuchi TL12 high flow track loader with FAE UML/SSL/VT-150 mastication head, with tooth type C/3 (standard).
+   + TL12 with ROPS/FOPS Cab with air conditioning/Heat
+   + Defroster
+   + 17.7" rubber tracks
+   + hydraulic quick attach
+   + roll up Lexan door
+   + High Flow Auxiliary Hydraulics w/second auxiliary line.
+   + FAE UML/SSL/VT-150 Universal forestry mulcher for skid steer with push-frame. 
+
+ + FAE - Prime Tech PT-175 :: Prime Tech PT-175 Dedicated Carrier with FAE 140/U/ST-175 Mulching head with C-type teeth.
+
+   + Mechanical push-frame with guide pins for 140/U-175
+   + Rear winch with 5.6 t pulling power
+   + Rear view camera, with extra display
+   + Comfort driver's seat (heated and with pneumatic suspension)
+   + Reversible fan for the engine radiator (including compressor)
+   + Additional handle for emergency exit (to open it up from the outside)
+   + All cab windows in 12mm Lexan Margard.
+   + Rock guards for lower rollers. 
+   + STD-500 mm tracks-single grouser
+
+ + Kaiser S2-2 :: Mobile walking excavator, machine works on steep slopes ranging from 30-60 degrees. 
+
+ + John Deere/Fecon JD210 with BH80EXC :: Crawler excavator 20 ton class with severe duty masticating head
+
+ + 2000 Timbco Feller Buncher 425D :: Tracked feller buncher, FAE UMM/EX 125 mastication attachment.
+
+
+ Additional piece-specific information is necessary to calculate equipment costs.
+
+ #+NAME:   tab:equip_spec
+ #+BEGIN_SRC sqlite :db hfrd_machinecost.db  :colnames yes :exports results
+ select mfg||'--'||model "Equipment", net_hp "Rated HP", ccase_cap "Lubricant Res. (Gal)", oilch_hrs "Oil Change Cycle (hrs)" from equipment;
+ #+END_SRC
+#+CAPTION: Salvage value and economic life of equipment used on the HFRD.
+ #+RESULTS: tab:equip_spec
+ | Equipment                            | Salvage Value | Economic Life |
+ |--------------------------------------+---------------+---------------|
+ | Fecon--FTX128                        | $17000.0      |           5.0 |
+ | Kaiser--S2-2                         | $17000.0      |           5.0 |
+ | FAE - Prime Tech--PT-175             | $17000.0      |           7.5 |
+ | Takeuchi--TL12CRH                    | $17000.0      |           8.0 |
+ | Caterpillar--299D XHP                | $30000.0      |           5.0 |
+ | Takeuchi--TB290CL                    | $30000.0      |           8.0 |
+ | John Deere/Fecon--JD210 with BH80EXC | $30000.0      |          20.0 |
+ | 2000 Timbco Feller Buncher--425D     | $30000.0      |          10.0 |
+
+ #+CAPTION: Equipment specifications provided by vendors.
+
+
+***** Initial Investment
+
+Vendors were asked to provide prices for equipment base system, necessary attachments and miscellaneous setup costs to provision the specific configuration used on the demo
+
+
+ #+NAME:   tab:equip_base
+ #+BEGIN_SRC sqlite :db hfrd_machinecost.db  :colnames yes :exports results
+ select mfg "Mfg", model "Model", '$'||cost_standard "Base Cost", '$'||att_cost "Attch. Cost", '$'||misc_cost "Misc.", '$'||(cost_standard+att_cost+misc_cost) "Total" from equipment;
+ #+END_SRC
+ #+CAPTION: Equipment purchase and setup prices for configurations used in HFRD.
+ #+RESULTS: tab:equip_base
+ | Mfg                        | Model              | Base Cost | Attch. Cost | Misc.    | Total     |
+ |----------------------------+--------------------+-----------+-------------+----------+-----------|
+ | Fecon                      | FTX128             | $200000.0 | $0.0        | $0.0     | $200000.0 |
+ | Kaiser                     | S2-2               | $350000.0 | $24000.0    | $0.0     | $374000.0 |
+ | FAE - Prime Tech           | PT-175             | $255000.0 | $0.0        | $0.0     | $255000.0 |
+ | Takeuchi                   | TL12CRH            | $86500.0  | $31556.0    | $0.0     | $118056.0 |
+ | Caterpillar                | 299D XHP           | $111000.0 | $32500.0    | $700.0   | $144200.0 |
+ | Takeuchi                   | TB290CL            | $113500.0 | $23249.0    | $1200.0  | $137949.0 |
+ | John Deere/Fecon           | JD210 with BH80EXC | $210000.0 | $50000.0    | $10000.0 | $270000.0 |
+ | 2000 Timbco Feller Buncher | 425D               | $450000.0 | $50000.0    | $5000.0  | $505000.0 |
+
+
+
+ To calculate depreciation for each piece of equipment, an expected
+ economic life span is necessary. Equipment vendors were asked to
+ provide an expected economic life span for the equipment. If none was
+ provided a default of 5 years was assumed. Salvage value is also
+ necessary to calculate depreciation. If vendors did not provide
+ salvage value at the end of the economic life span of the investment,
+ we assumed 20% of the initial value. Scheduled (planned) and
+ productive time on an annual basis were used to derive a utilization
+ rate for each piece of equipment. If vendors did not provide planned
+ and productive hours we assumed a utilization rate of 65% based on
+ the average values for equipment presented  in Miyata (1980).
+
+#+NAME:   tab:equip_prelim
+ #+BEGIN_SRC sqlite :db hfrd_machinecost.db  :colnames yes :exports results
+ select mfg||'--'||model "Equipment", '$'||salvage_vlaue "S", economic_life "E", sched_op_time "SH", prod_time "P", printf("%.1f", ut_rate*100)||'%' "U" from prelim;
+ #+END_SRC
+#+CAPTION:Preliminary data used to calculate equipment costs. S: Salvage value at the end of equipments economic life, E: Economic life in years, SH: Scheduled operating time (hr/year), P: Productive time (hr/year), U: Utilization Rate 
+ #+RESULTS: tab:equip_prelim
+ | Equipment                            | S        |    E |     SH |       P |     U |
+ |--------------------------------------+----------+------+--------+---------+-------|
+ | Fecon--FTX128                        | $17000.0 |  5.0 | 1872.0 | 1215.36 | 64.9% |
+ | Kaiser--S2-2                         | $17000.0 |  5.0 | 1872.0 | 1215.36 | 64.9% |
+ | FAE - Prime Tech--PT-175             | $17000.0 |  7.5 | 1872.0 | 1215.36 | 64.9% |
+ | Takeuchi--TL12CRH                    | $17000.0 |  8.0 | 1872.0 |  1248.0 | 66.7% |
+ | Caterpillar--299D XHP                | $30000.0 |  5.0 | 1872.0 | 1215.36 | 64.9% |
+ | Takeuchi--TB290CL                    | $30000.0 |  8.0 | 1872.0 | 1215.36 | 64.9% |
+ | John Deere/Fecon--JD210 with BH80EXC | $30000.0 | 20.0 | 1872.0 |  1560.0 | 83.3% |
+ | 2000 Timbco Feller Buncher--425D     | $30000.0 | 10.0 | 1872.0 |  1755.0 | 93.8% |
+
+***** Fixed Costs
+
+Depreciation, interest, insurance and taxes are all considered fixed
+costs as they do not vary with the amount that the machine is
+used. We asked vendors to select between three methods used to
+calculate depreciation: '/strait line/' assumes constant annual
+depreciation over the life span of the equipment, '/declining balance/'
+weights depreciation toward the early years of the equipments economic
+life, and '/sum-of-years-digits/' which is an alternate way of
+weighting depreciation toward the earlier years. See Miyata for a more
+detailed discussion of the different methods of estimating
+depreciation. We estimate interest insurance and taxes on the basis of
+the Average Value of Yearly Investment (AVI). AVI is calculated as
+follows:
+
+\begin{equation}
+     \text{AVI}=\frac{(P-S)(N+1)}{2N}+S
+\end{equation}
+Where:
+$P$ = Initial Investment \\
+$S$ = Salvage Value \\
+$N$ = Economic Life \\
+
+We estimate interest, insurance and taxes as 12%, 3% and 3% of AVI
+respectively based on Miyata.
+
+#+NAME:   tab:equip_fixed
+ #+BEGIN_SRC sqlite :db hfrd_machinecost.db  :colnames yes :exports results
+ select mfg||'--'||model "Equipment", '$'||printf("%.2f", av_ann_dep) "D", dep_method "Dep. Method", '$'||printf("%.1f", avi) "AVI", '$'||printf("%.1f", interest ) "Interest", '$'||printf("%.1f",insurance) "Insurance", '$'||printf("%.1f", taxes) "Taxes" from fixed;
+ #+END_SRC
+
+ #+RESULTS: tab:equip_fixed
+ | Equipment                            | D         | Dep. Method       | AVI       | Interest | Insurance | Taxes   |
+ |--------------------------------------+-----------+-------------------+-----------+----------+-----------+---------|
+ | Fecon--FTX128                        | $36600.00 | nan               | $126800.0 | $15216.0 | $3804.0   | $3804.0 |
+ | Kaiser--S2-2                         | $71400.00 | nan               | $231200.0 | $27744.0 | $6936.0   | $6936.0 |
+ | FAE - Prime Tech--PT-175             | $31733.33 | nan               | $151866.7 | $18224.0 | $4556.0   | $4556.0 |
+ | Takeuchi--TL12CRH                    | $12632.00 | strait line       | $73844.0  | $8861.3  | $2215.3   | $2215.3 |
+ | Caterpillar--299D XHP                | $25102.34 | declining balance | $98520.0  | $11822.4 | $2955.6   | $2955.6 |
+ | Takeuchi--TB290CL                    | $13493.63 | strait line       | $90721.3  | $10886.6 | $2721.6   | $2721.6 |
+ | John Deere/Fecon--JD210 with BH80EXC | $12000.00 | strait line       | $156000.0 | $18720.0 | $4680.0   | $4680.0 |
+ | 2000 Timbco Feller Buncher--425D     | $47500.00 | strait line       | $291250.0 | $34950.0 | $8737.5   | $8737.5 |
+
+#+CAPTION:Fxed costs. D: Average annual depreciation over the lifespan of the equipment, AVI: Average Value of Yearly Investment.
+
+***** Operating Costs
+Operating costs vary with the amount the equipment is used. Operating
+costs include fuel, lubricants, maintenance, etc.. Maintenance and
+repair is calculated based on Miyata as 110% of annual depreciation.  
+As we did not obtain cost figures for replacement tires/tracks we
+assume a replacement cost of $1000. Based on sales of diesel during
+the HFRD we assume a fuel cost of $2.61/gal and 0.24/gal in taxes. We
+estimate fully loaded labor costs of $15.82 for equipment operators
+based on US Bureau of Labor statistics for 2015[fn:1] 
+
+#+NAME:   tab:equip_op
+ #+BEGIN_SRC sqlite :db hfrd_machinecost.db  :colnames yes :exports results
+ select mfg||'--'||model "Equipment", '$'||printf("%.1f", m_r) "M&R", '$'||printf("%.1f", fuel) "Fuel", '$'||printf("%.4f", lubricants ) "Lubricants", '$'||printf("%.1f",(m_r + fuel + lubricants + labor + tires)) "Total Ops. ($/hr)" from op;
+ #+END_SRC
+#+CAPTION: Total costs include $0.575/hr for tires and $15.82/hr for labor.
+ #+RESULTS: tab:equip_op
+ | Equipment                            | M&R    | Fuel  | Lubricants | Total Ops. ($/hr) |
+ |--------------------------------------+--------+-------+------------+-------------------|
+ | Fecon--FTX128                        | $33.13 | $13.4 | $0.0327    | $63.0             |
+ | Kaiser--S2-2                         | $64.62 | $16.4 | $0.0107    | $97.4             |
+ | FAE - Prime Tech--PT-175             | $28.72 | $16.8 | $0.0128    | $61.9             |
+ | Takeuchi--TL12CRH                    | $11.13 | $11.5 | $0.0143    | $39.1             |
+ | Caterpillar--299D XHP                | $22.72 | $11.1 | $0.0147    | $50.3             |
+ | Takeuchi--TB290CL                    | $12.21 | $7.2  | $0.0207    | $35.9             |
+ | John Deere/Fecon--JD210 with BH80EXC | $8.46  | $16.7 | $0.0282    | $41.6             |
+ | 2000 Timbco Feller Buncher--425D     | $29.77 | $27.8 | $0.0407    | $74.0             |
+
+***** Total Hourly Costs
+
+Total costs per Productive Machine Hour ($/PMH) were then calculated
+for each piece of equipment.
+#+NAME:   tab:equip_pmh
+ #+BEGIN_SRC sqlite :db hfrd_machinecost.db  :colnames yes :exports results
+ select mfg||'--'||model "Equipment", '$'||printf('%.1f',pmh) "$/PMH" from prelim;
+ #+END_SRC
+
+ #+RESULTS: tab:equip_pmh
+ | Equipment                            | $/PMH  |
+ |--------------------------------------+--------|
+ | Fecon--FTX128                        | $73.3  |
+ | Kaiser--S2-2                         | $120.3 |
+ | FAE - Prime Tech--PT-175             | $76.3  |
+ | Takeuchi--TL12CRH                    | $43.5  |
+ | Caterpillar--299D XHP                | $57.3  |
+ | Takeuchi--TB290CL                    | $42.7  |
+ | John Deere/Fecon--JD210 with BH80EXC | $56.2  |
+ | 2000 Timbco Feller Buncher--425D     | $100.3 |
+
+
+* Footnotes
+
+[fn:1] Occupational Employment and Wages, May 2015 45-4029 Logging
+Workers, All Other. [[http://www.bls.gov/oes/current/oes454029.htm#(2)][http://www.bls.gov/oes/current/oes454029.htm#(2)]]
