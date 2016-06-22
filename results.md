@@ -38,21 +38,21 @@ Steel tracked forestry mulcher
 
 |   Utilization rate |   Labor cost hourly |   $/PMH |
 |-------------------:|--------------------:|--------:|
-|           0.649231 |               15.82 | 73.2943 |
+|           0.649231 |               15.82 |  56.507 |
 
 
 ### Operating Costs
 
 |   Fixed cost per H |   Depreciation (annual) |   Average vaule of yearly investment |   Interest insurance and taxes |   Fixed annual costs |
 |-------------------:|------------------------:|-------------------------------------:|-------------------------------:|---------------------:|
-|            48.8942 |                   36600 |                               126800 |                          22824 |                59424 |
+|            32.1222 |                   16000 |                               128000 |                          23040 |                39040 |
 
 
 ### Total Machine Costs
 
 |   Fuel |   Oil & lubricants |   Tires |   Hourly maintenance and repair |   Operating cost |
 |-------:|-------------------:|--------:|--------------------------------:|-----------------:|
-| 13.429 |          0.0980554 |   0.575 |                       0.0272561 |          14.1294 |
+| 13.429 |          0.0980554 |   0.575 |                       0.0119152 |           14.114 |
 
 
 ## Takeuchi TB290CL
@@ -65,21 +65,21 @@ Takeuchi TB290 excavator with cab and roadliner track, manual pin-grabber couple
 
 |   Utilization rate |   Labor cost hourly |   $/PMH |
 |-------------------:|--------------------:|--------:|
-|           0.649231 |               15.82 | 42.6958 |
+|           0.649231 |               15.82 | 42.7878 |
 
 
 ### Operating Costs
 
 |   Fixed cost per H |   Depreciation (annual) |   Average vaule of yearly investment |   Interest insurance and taxes |   Fixed annual costs |
 |-------------------:|------------------------:|-------------------------------------:|-------------------------------:|---------------------:|
-|            24.5388 |                 13493.6 |                              90721.3 |                        16329.8 |              29823.5 |
+|            24.6305 |                 13794.9 |                              89666.9 |                          16140 |              29934.9 |
 
 
 ### Total Machine Costs
 
 |    Fuel |   Oil & lubricants |   Tires |   Hourly maintenance and repair |   Operating cost |
 |--------:|-------------------:|--------:|--------------------------------:|-----------------:|
-| 7.23909 |          0.0620554 |   0.575 |                       0.0100487 |           7.8862 |
+| 7.23909 |          0.0620554 |   0.575 |                       0.0102731 |          7.88642 |
 
 
 ## Takeuchi TL12CRH
@@ -96,21 +96,21 @@ FAE UML/SSL/VT-150 Universal forestry mulcher for skid steer with push-frame.
 
 |   Utilization rate |   Labor cost hourly |   $/PMH |
 |-------------------:|--------------------:|--------:|
-|           0.666667 |               15.82 | 43.4864 |
+|           0.666667 |               15.82 | 43.2408 |
 
 
 ### Operating Costs
 
 |   Fixed cost per H |   Depreciation (annual) |   Average vaule of yearly investment |   Interest insurance and taxes |   Fixed annual costs |
 |-------------------:|------------------------:|-------------------------------------:|-------------------------------:|---------------------:|
-|            20.7724 |                   12632 |                                73844 |                        13291.9 |              25923.9 |
+|            20.5274 |                 11805.6 |                              76736.4 |                        13812.6 |              25618.2 |
 
 
 ### Total Machine Costs
 
 |    Fuel |   Oil & lubricants |   Tires |   Hourly maintenance and repair |   Operating cost |
 |--------:|-------------------:|--------:|--------------------------------:|-----------------:|
-| 11.5406 |          0.0428554 |   0.575 |                      0.00892145 |          12.1674 |
+| 11.5406 |          0.0428554 |   0.575 |                       0.0083378 |          12.1668 |
 
 
 ## FAE - Prime Tech PT-175
@@ -133,21 +133,21 @@ STD-500 mm tracks-single grouser
 
 |   Utilization rate |   Labor cost hourly |   $/PMH |
 |-------------------:|--------------------:|--------:|
-|           0.649231 |               15.82 | 76.2966 |
+|           0.649231 |               15.82 | 74.7453 |
 
 
 ### Operating Costs
 
 |   Fixed cost per H |   Depreciation (annual) |   Average vaule of yearly investment |   Interest insurance and taxes |   Fixed annual costs |
 |-------------------:|------------------------:|-------------------------------------:|-------------------------------:|---------------------:|
-|            48.6023 |                 31733.3 |                               151867 |                          27336 |              59069.3 |
+|            47.0544 |                   27200 |                               166600 |                          29988 |                57188 |
 
 
 ### Total Machine Costs
 
 |    Fuel |   Oil & lubricants |   Tires |   Hourly maintenance and repair |   Operating cost |
 |--------:|-------------------:|--------:|--------------------------------:|-----------------:|
-| 16.7863 |          0.0385354 |   0.575 |                       0.0236319 |          17.4235 |
+| 16.7863 |          0.0385354 |   0.575 |                       0.0202559 |          17.4201 |
 
 
 ## Kaiser S2-2
@@ -160,21 +160,21 @@ Mobile walking excavator, machine works on steep slopes ranging from 30-60 degre
 
 |   Utilization rate |   Labor cost hourly |   $/PMH |
 |-------------------:|--------------------:|--------:|
-|           0.649231 |               15.82 | 120.287 |
+|           0.649231 |               15.82 | 87.3353 |
 
 
 ### Operating Costs
 
 |   Fixed cost per H |   Depreciation (annual) |   Average vaule of yearly investment |   Interest insurance and taxes |   Fixed annual costs |
 |-------------------:|------------------------:|-------------------------------------:|-------------------------------:|---------------------:|
-|            92.9897 |                   71400 |                               231200 |                          41616 |               113016 |
+|            60.0685 |                   29920 |                               239360 |                        43084.8 |              73004.8 |
 
 
 ### Total Machine Costs
 
 |    Fuel |   Oil & lubricants |   Tires |   Hourly maintenance and repair |   Operating cost |
 |--------:|-------------------:|--------:|--------------------------------:|-----------------:|
-| 16.3666 |          0.0320554 |   0.575 |                       0.0531718 |          17.0269 |
+| 16.3666 |          0.0320554 |   0.575 |                       0.0222815 |           16.996 |
 
 
 ## John Deere/Fecon JD210 with BH80EXC
@@ -187,21 +187,21 @@ Crawler excavator 20 ton class with severe duty masticating head
 
 |   Utilization rate |   Labor cost hourly |   $/PMH |
 |-------------------:|--------------------:|--------:|
-|           0.833333 |               15.82 |  56.222 |
+|           0.833333 |               15.82 | 56.7676 |
 
 
 ### Operating Costs
 
 |   Fixed cost per H |   Depreciation (annual) |   Average vaule of yearly investment |   Interest insurance and taxes |   Fixed annual costs |
 |-------------------:|------------------------:|-------------------------------------:|-------------------------------:|---------------------:|
-|            25.6923 |                   12000 |                               156000 |                          28080 |                40080 |
+|            26.2385 |                   10800 |                               167400 |                          30132 |                40932 |
 
 
 ### Total Machine Costs
 
 |    Fuel |   Oil & lubricants |   Tires |   Hourly maintenance and repair |   Operating cost |
 |--------:|-------------------:|--------:|--------------------------------:|-----------------:|
-| 16.6814 |          0.0845554 |   0.575 |                      0.00542406 |          17.3464 |
+| 16.6814 |          0.0845554 |   0.575 |                      0.00488166 |          17.3458 |
 
 
 ## 2000 Timbco Feller Buncher 425D
@@ -214,21 +214,21 @@ Tracked feller buncher, FAE UMM/EX 125 mastication attachment.
 
 |   Utilization rate |   Labor cost hourly |   $/PMH |
 |-------------------:|--------------------:|--------:|
-|             0.9375 |               15.82 | 100.285 |
+|             0.9375 |               15.82 | 99.5137 |
 
 
 ### Operating Costs
 
 |   Fixed cost per H |   Depreciation (annual) |   Average vaule of yearly investment |   Interest insurance and taxes |   Fixed annual costs |
 |-------------------:|------------------------:|-------------------------------------:|-------------------------------:|---------------------:|
-|            56.9373 |                   47500 |                               291250 |                          52425 |                99925 |
+|            56.1687 |                   40400 |                               323200 |                          58176 |                98576 |
 
 
 ### Total Machine Costs
 
 |    Fuel |   Oil & lubricants |   Tires |   Hourly maintenance and repair |   Operating cost |
 |--------:|-------------------:|--------:|--------------------------------:|-----------------:|
-| 27.8023 |           0.122055 |   0.575 |                       0.0169641 |          28.5163 |
+| 27.8023 |           0.122055 |   0.575 |                       0.0144285 |          28.5138 |
 
 
 

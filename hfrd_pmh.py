@@ -75,8 +75,8 @@ for idx in miy.costData.index:
     if math.isnan(idr['economiclife']) is False:
         miy.DpAsset.N = float(idr['economiclife'])
     # If salvage value not reported use default (20% of P)
-    if math.isnan(idr['salvagevalue']) is False:
-        miy.DpAsset.S = idr['salvagevalue']
+    miy.DpAsset.S = miy.DpAsset.Scalc(svalue=idr['salvagevalue'])
+    print miy.DpAsset.S
     # If scheduled and actual operating hours are reported,
     # calculate a utilization rate. Otherwise use average
     # from all equiment reported in Miyata.
@@ -92,7 +92,7 @@ for idx in miy.costData.index:
         dep = miy.DpAsset.depStraitLine()
     elif idr['depreciationmethod'] == 'declining balance':
         dep = np.mean([i[0] for i in miy.DpAsset.depDecBalance().values()])
-    elif idr['depreciationmethod'] == 'supm of years digits':
+    elif idr['depreciationmethod'] == 'sum of years digits':
         dep = np.mean([i[0] for i in miy.DpAsset.depSOYD().values()])
     fix = miy.fixedCost(dep,
                         miy.DpAsset.AVI(),

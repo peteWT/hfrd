@@ -32,7 +32,16 @@ class DpAsset:
     N = 5.0
     sPct = 0.2
     mRatio = 1.1  # times annual depreciation
-    S = sPct * P
+    S = P * sPct
+
+    @classmethod
+    def Scalc(cls, svalue=None):
+        """Salvage value is, by default calculated as a percentage pf P unless a float or int is passed as 'svalue"""
+        try:
+            return int(round(svalue))
+        except ValueError:
+            print 'salvage value cant be %s' % (svalue)
+            return cls.sPct * cls.P
 
     # Fuel Density
     DieselLbGal = 7.08
