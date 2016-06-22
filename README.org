@@ -174,7 +174,7 @@ Vendors were asked to provide prices for equipment base system, necessary attach
  #+BEGIN_SRC sqlite :db hfrd_machinecost.db  :colnames yes :exports results
  select mfg||'--'||model "Equipment", '$'||salvage_vlaue "S", economic_life "E", sched_op_time "SH", prod_time "H", printf("%.1f", ut_rate*100)||'%' "U" from prelim;
  #+END_SRC
-#+CAPTION:Preliminary data used to calculate equipment costs. S: Salvage value at the end of equipments economic life, E: Economic life in years, SH: Scheduled operating time (hr/year), P: Productive time (hr/year), U: Utilization Rate 
+#+CAPTION:Preliminary data used to calculate equipment costs. S: Salvage value at the end of equipments economic life, E: Economic life in years, SH: Scheduled operating time (hr/year), H: Productive time (hr/year), U: Utilization Rate 
  #+RESULTS: tab:equip_prelim
  | Equipment                            | S         |    E |     SH |       H |     U |
  |--------------------------------------+-----------+------+--------+---------+-------|
@@ -221,9 +221,9 @@ respectively based on Miyata.
  #+RESULTS: tab:equip_fixed
  | Equipment                            | D         | Dep. Method       | AVI       | Interest | Insurance | Taxes   |
  |--------------------------------------+-----------+-------------------+-----------+----------+-----------+---------|
- | Fecon--FTX128                        | $16000.00 | nan               | $128000.0 | $15360.0 | $3840.0   | $3840.0 |
- | Kaiser--S2-2                         | $29920.00 | nan               | $239360.0 | $28723.2 | $7180.8   | $7180.8 |
- | FAE - Prime Tech--PT-175             | $27200.00 | nan               | $166600.0 | $19992.0 | $4998.0   | $4998.0 |
+ | Fecon--FTX128                        | $32000.00 | strait line       | $136000.0 | $16320.0 | $4080.0   | $4080.0 |
+ | Kaiser--S2-2                         | $59840.00 | strait line       | $254320.0 | $30518.4 | $7629.6   | $7629.6 |
+ | FAE - Prime Tech--PT-175             | $27200.00 | strait line       | $166600.0 | $19992.0 | $4998.0   | $4998.0 |
  | Takeuchi--TL12CRH                    | $11805.60 | strait line       | $76736.4  | $9208.4  | $2302.1   | $2302.1 |
  | Caterpillar--299D XHP                | $25102.34 | declining balance | $98520.0  | $11822.4 | $2955.6   | $2955.6 |
  | Takeuchi--TB290CL                    | $13794.90 | strait line       | $89666.9  | $10760.0 | $2690.0   | $2690.0 |

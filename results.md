@@ -38,21 +38,21 @@ Steel tracked forestry mulcher
 
 |   Utilization rate |   Labor cost hourly |   $/PMH |
 |-------------------:|--------------------:|--------:|
-|           0.649231 |               15.82 |  56.507 |
+|           0.649231 |               15.82 | 70.8686 |
 
 
 ### Operating Costs
 
 |   Fixed cost per H |   Depreciation (annual) |   Average vaule of yearly investment |   Interest insurance and taxes |   Fixed annual costs |
 |-------------------:|------------------------:|-------------------------------------:|-------------------------------:|---------------------:|
-|            32.1222 |                   16000 |                               128000 |                          23040 |                39040 |
+|            46.4718 |                   32000 |                               136000 |                          24480 |                56480 |
 
 
 ### Total Machine Costs
 
 |   Fuel |   Oil & lubricants |   Tires |   Hourly maintenance and repair |   Operating cost |
 |-------:|-------------------:|--------:|--------------------------------:|-----------------:|
-| 13.429 |          0.0980554 |   0.575 |                       0.0119152 |           14.114 |
+| 13.429 |          0.0980554 |   0.575 |                       0.0238305 |          14.1259 |
 
 
 ## Takeuchi TB290CL
@@ -160,21 +160,21 @@ Mobile walking excavator, machine works on steep slopes ranging from 30-60 degre
 
 |   Utilization rate |   Labor cost hourly |   $/PMH |
 |-------------------:|--------------------:|--------:|
-|           0.649231 |               15.82 | 87.3353 |
+|           0.649231 |               15.82 | 114.191 |
 
 
 ### Operating Costs
 
 |   Fixed cost per H |   Depreciation (annual) |   Average vaule of yearly investment |   Interest insurance and taxes |   Fixed annual costs |
 |-------------------:|------------------------:|-------------------------------------:|-------------------------------:|---------------------:|
-|            60.0685 |                   29920 |                               239360 |                        43084.8 |              73004.8 |
+|            86.9023 |                   59840 |                               254320 |                        45777.6 |               105618 |
 
 
 ### Total Machine Costs
 
 |    Fuel |   Oil & lubricants |   Tires |   Hourly maintenance and repair |   Operating cost |
 |--------:|-------------------:|--------:|--------------------------------:|-----------------:|
-| 16.3666 |          0.0320554 |   0.575 |                       0.0222815 |           16.996 |
+| 16.3666 |          0.0320554 |   0.575 |                        0.044563 |          17.0183 |
 
 
 ## John Deere/Fecon JD210 with BH80EXC
