@@ -63,6 +63,13 @@ results = {}
 
 for idx in miy.costData.index:
     idr = miy.costData.ix[idx]
+    #Tire Costs all are assumed to be 3000 hrs, which is probably not accurate as the steel tracks last longer.
+    miy.DpAsset.tireCost = idr['totaltracktire']
+    miy.DpAsset.tireRetread = 0
+    miy.DpAsset.tireLife = idr['trackschedule']
+    print miy.DpAsset.tireCost
+    print miy.DpAsset.tireLife
+
     miy.DpAsset.cCap = idr['lubricantreservoir']
     miy.DpAsset.cTime = idr['lubricanthours']
     miy.DpAsset.hp = idr['ratedhorsepower']
@@ -98,10 +105,6 @@ for idx in miy.costData.index:
                         miy.DpAsset.AVI(),
                         miy.DpAsset.IIT(),
                         H)
-    #Tire Costs all are assumed to be 3000 hrs, which is probably not accurate as the steel tracks last longer.
-
-    miy.DpAsset.tireCost = idr['totaltracktire']
-    miy.DpAsset.tireRetread = 0
     
     op = miy.operatingCost(miy.DpAsset.hrFuelCost(),
                            miy.DpAsset.oLubeCost() + miy.DpAsset.qCost(),
