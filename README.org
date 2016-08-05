@@ -178,8 +178,8 @@ Vendors were asked to provide prices for equipment base system, necessary attach
  #+RESULTS: tab:equip_prelim
  | Equipment                            | S         |    E |     SH |       H |     U |
  |--------------------------------------+-----------+------+--------+---------+-------|
- | Fecon--FTX128                        | $40000.0  | 10.0 | 1872.0 | 1215.36 | 64.9% |
- | Kaiser--S2-2                         | $74800.0  | 10.0 | 1872.0 | 1215.36 | 64.9% |
+ | Fecon--FTX128                        | $40000.0  |  5.0 | 1872.0 | 1215.36 | 64.9% |
+ | Kaiser--S2-2                         | $74800.0  |  5.0 | 1872.0 | 1215.36 | 64.9% |
  | FAE - Prime Tech--PT-175             | $51000.0  |  7.5 | 1872.0 | 1215.36 | 64.9% |
  | Takeuchi--TL12CRH                    | $23611.2  |  8.0 | 1872.0 |  1248.0 | 66.7% |
  | Caterpillar--299D XHP                | $30000.0  |  5.0 | 1872.0 | 1215.36 | 64.9% |
@@ -250,14 +250,14 @@ based on US Bureau of Labor statistics for 2015[fn:1]
  #+RESULTS: tab:equip_op
  | Equipment                            | M&R   | Fuel  | Lubricants | Total Ops. ($/hr) |
  |--------------------------------------+-------+-------+------------+-------------------|
- | Fecon--FTX128                        | $14.5 | $13.4 | $0.0327    | $44.3             |
- | Kaiser--S2-2                         | $27.1 | $16.4 | $0.0107    | $59.9             |
- | FAE - Prime Tech--PT-175             | $24.6 | $16.8 | $0.0128    | $57.8             |
- | Takeuchi--TL12CRH                    | $10.4 | $11.5 | $0.0143    | $38.4             |
- | Caterpillar--299D XHP                | $22.7 | $11.1 | $0.0147    | $50.3             |
- | Takeuchi--TB290CL                    | $12.5 | $7.2  | $0.0207    | $36.1             |
- | John Deere/Fecon--JD210 with BH80EXC | $7.6  | $16.7 | $0.0282    | $40.7             |
- | 2000 Timbco Feller Buncher--425D     | $25.3 | $27.8 | $0.0407    | $69.6             |
+ | Fecon--FTX128                        | $29.0 | $13.4 | $0.0327    | $62.1             |
+ | Kaiser--S2-2                         | $54.2 | $16.4 | $0.0107    | $88.5             |
+ | FAE - Prime Tech--PT-175             | $24.6 | $16.8 | $0.0128    | $57.6             |
+ | Takeuchi--TL12CRH                    | $10.4 | $11.5 | $0.0143    | $38.2             |
+ | Caterpillar--299D XHP                | $22.7 | $11.1 | $0.0147    | $54.1             |
+ | Takeuchi--TB290CL                    | $12.5 | $7.2  | $0.0207    | $35.9             |
+ | John Deere/Fecon--JD210 with BH80EXC | $7.6  | $16.7 | $0.0282    | $45.9             |
+ | 2000 Timbco Feller Buncher--425D     | $25.3 | $27.8 | $0.0407    | $71.9             |
 
 ***** Total Hourly Costs
 
@@ -269,30 +269,17 @@ for each piece of equipment.
  #+END_SRC
 
  #+RESULTS: tab:equip_pmh
- | Equipment                            | $/PMH |
- |--------------------------------------+-------|
- | Fecon--FTX128                        | $56.5 |
- | Kaiser--S2-2                         | $87.3 |
- | FAE - Prime Tech--PT-175             | $74.7 |
- | Takeuchi--TL12CRH                    | $43.2 |
- | Caterpillar--299D XHP                | $57.3 |
- | Takeuchi--TB290CL                    | $42.8 |
- | John Deere/Fecon--JD210 with BH80EXC | $56.8 |
- | 2000 Timbco Feller Buncher--425D     | $99.5 |
+ | Equipment                            | $/PMH  |
+ |--------------------------------------+--------|
+ | Fecon--FTX128                        | $74.1  |
+ | Kaiser--S2-2                         | $115.8 |
+ | FAE - Prime Tech--PT-175             | $74.6  |
+ | Takeuchi--TL12CRH                    | $43.0  |
+ | Caterpillar--299D XHP                | $61.1  |
+ | Takeuchi--TB290CL                    | $42.6  |
+ | John Deere/Fecon--JD210 with BH80EXC | $61.9  |
+ | 2000 Timbco Feller Buncher--425D     | $101.8 |
  
-
-
-#+NAME: equippmh_old
-| Equipment                            | $/PMH  | old (wrong) |
-|--------------------------------------+--------+-------------|
-| Fecon--FTX128                        | $73.3  |        56.5 |
-| Kaiser--S2-2                         | $120.3 |        87.3 |
-| FAE - Prime Tech--PT-175             | $76.3  |        74.7 |
-| Takeuchi--TL12CRH                    | $43.5  |        43.2 |
-| Caterpillar--299D XHP                | $57.3  |        57.3 |
-| Takeuchi--TB290CL                    | $42.7  |        42.8 |
-| John Deere/Fecon--JD210 with BH80EXC | $56.2  |        56.8 |
-| 2000 Timbco Feller Buncher--425D     | $100.3 |        99.5 |
 
 
 * Footnotes
