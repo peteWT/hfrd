@@ -98,6 +98,11 @@ for idx in miy.costData.index:
                         miy.DpAsset.AVI(),
                         miy.DpAsset.IIT(),
                         H)
+    #Tire Costs all are assumed to be 3000 hrs, which is probably not accurate as the steel tracks last longer.
+
+    miy.DpAsset.tireCost = idr['totaltracktire']
+    miy.DpAsset.tireRetread = 0
+    
     op = miy.operatingCost(miy.DpAsset.hrFuelCost(),
                            miy.DpAsset.oLubeCost() + miy.DpAsset.qCost(),
                            miy.DpAsset.hTireCost(),
